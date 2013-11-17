@@ -1,0 +1,19 @@
+{
+  "uuid": "7eb9c3ff-107c-47dc-ab8c-6353dbc0d344",
+  "shortName": "JewishClock2",
+  "longName": "Jewish Clock 2",
+  "capabilities": [ "location" ],
+  "companyName": "Ary Tebeka",
+  "versionCode": 2,
+  "versionLabel": "2.0.0",
+  "watchapp": {
+    "watchface": true
+  },
+  "appKeys": {
+      "city": 2,
+      "temperature": 1
+  },
+  "resources": {
+    "media": []
+  }
+}
