@@ -1,4 +1,6 @@
 #include <pebble.h>
+#include "hebrewdate.h"
+#include "xprintf.h"
 
 static Window *window;
 static TextLayer *temperature_layer;
@@ -9,8 +11,10 @@ static AppSync sync;
 static uint8_t sync_buffer[64];
 
 enum WeatherKey {
-  WEATHER_TEMPERATURE_KEY = 0x1,  // TUPLE_CSTRING
-  WEATHER_CITY_KEY = 0x2,         // TUPLE_CSTRING
+  LATITUDE_KEY = 0x1,             // TUPLE_INTEGER
+  LONGITUDE_KEY = 0x2,            // TUPLE_INTEGER
+    TIMEZONE_KEY = 0x3,             // TUPLE_INTEGER
+    DST_KEY = 0x4,             // TUPLE_INTEGER
 };
 
 static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
@@ -19,14 +23,14 @@ static void sync_error_callback(DictionaryResult dict_error, AppMessageResult ap
 
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
   switch (key) {
-    case WEATHER_TEMPERATURE_KEY:
+      case LATITUDE_KEY: {
       // App Sync keeps new_tuple in sync_buffer, so we may use it directly
-      text_layer_set_text(temperature_layer, new_tuple->value->cstring);
+          char *sLat = "1234567890";
+          int newLat = new_tuple->value->int32;
+          snprintf(sLat, 9, "%i", newLat);
+          text_layer_set_text(temperature_layer, sLat);
       break;
-
-    case WEATHER_CITY_KEY:
-      text_layer_set_text(city_layer, new_tuple->value->cstring);
-      break;
+      }
   }
 }
 
@@ -64,8 +68,10 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, text_layer_get_layer(city_layer));
 
     Tuplet initial_values[] = {
-      TupletCString(WEATHER_TEMPERATURE_KEY, "1234\u00B0C"),
-      TupletCString(WEATHER_CITY_KEY, "St Pebblesburg"),
+      TupletInteger(LATITUDE_KEY, 0),
+      TupletInteger(LONGITUDE_KEY, 0),
+        TupletInteger(TIMEZONE_KEY, 0),
+        TupletInteger(DST_KEY, 0)
     };
 
     app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),

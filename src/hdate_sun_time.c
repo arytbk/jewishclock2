@@ -22,15 +22,16 @@
  * These routines are based on Jean Meeus's book Astronomical Algorithms.
  */
 
-#include <time.h>
-#include <stdio.h>
-#include <math.h>
-#include <errno.h>
+//#include <time.h>
+//#include <stdio.h>
+//#include <math.h>
+//#include <errno.h>
 
-#include "hdate.h"
-#include "support.h"
+//#include "hdate.h"
+//#include "support.h"
 
-#define M_PI 3.14159265358979323846
+#include "hdate_sun_time.h"
+#include "my_math.h"
 
 /**
  @brief days from 1 january
@@ -95,23 +96,24 @@ hdate_get_utc_sun_time_deg (int day, int month, int year, double latitude, doubl
 	gama = 2.0 * M_PI * ((double)(day_of_year - 1) / 365.0);
 	
 	/* get the diff betwen suns clock and wall clock in minutes */
-	eqtime = 229.18 * (0.000075 + 0.001868 * cos (gama)
-		- 0.032077 * sin (gama) - 0.014615 * cos (2.0 * gama)
-		- 0.040849 * sin (2.0 * gama));
+	eqtime = 229.18 * (0.000075 + 0.001868 * my_cos(gama)
+		- 0.032077 * my_sin(gama) - 0.014615 * my_cos (2.0 * gama)
+		- 0.040849 * my_sin (2.0 * gama));
 	
 	/* calculate suns declanation at the equater in radians */
-	decl = 0.006918 - 0.399912 * cos (gama) + 0.070257 * sin (gama)
-		- 0.006758 * cos (2.0 * gama) + 0.000907 * sin (2.0 * gama)
-		- 0.002697 * cos (3.0 * gama) + 0.00148 * sin (3.0 * gama);
+	decl = 0.006918 - 0.399912 * my_cos (gama) + 0.070257 * my_sin (gama)
+		- 0.006758 * my_cos (2.0 * gama) + 0.000907 * my_sin (2.0 * gama)
+		- 0.002697 * my_cos (3.0 * gama) + 0.00148 * my_sin (3.0 * gama);
 	
 	/* we use radians, ratio is 2pi/360 */
 	latitude = M_PI * latitude / 180.0;
 	
 	/* the sun real time diff from noon at sunset/rise in radians */
-	errno = 0;
-	ha = acos (cos (sunrise_angle) / (cos (latitude) * cos (decl)) - tan (latitude) * tan (decl));
+//	errno = 0;
+	ha = my_acos (my_cos (sunrise_angle) / (my_cos (latitude) * my_cos (decl)) - my_tan (latitude) * my_tan (decl));
 	
 	/* check for too high altitudes and return negative values */
+/*
 	if (errno == EDOM)
 	{
 		*sunrise = -720;
@@ -119,6 +121,7 @@ hdate_get_utc_sun_time_deg (int day, int month, int year, double latitude, doubl
 		
 		return;
 	}
+*/
 	
 	/* we use minutes, ratio is 1440min/2pi */
 	ha = 720.0 * ha / M_PI;

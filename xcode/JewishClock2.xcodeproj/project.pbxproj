@@ -1,0 +1,627 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+	000027100000000562001004 = {
+		isa = PBXGroup;
+		path = "out";
+		sourceTree = "<group>";
+		children = (
+		);
+		name = "out";
+	};
+
+	000027100000000562001008 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "text";
+		name = "appinfo.json";
+		path = "/Users/ary/pebble-dev/JewishClock2/appinfo.json";
+	};
+
+	000027100000000562001010 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "hdate.h";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate.h";
+	};
+
+	000027100000000562001011 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_holyday.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_holyday.c";
+	};
+
+	000027100000000562001012 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_julian.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_julian.c";
+	};
+
+	000027100000000562001013 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_parasha.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_parasha.c";
+	};
+
+	000027100000000562001014 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_strings.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_strings.c";
+	};
+
+	000027100000000562001015 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_sun_time.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_sun_time.c";
+	};
+
+	000027100000000562001016 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "support.h";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/support.h";
+	};
+
+	000027100000000562001009 = {
+		isa = PBXGroup;
+		path = "libhdate.experimental";
+		sourceTree = "<group>";
+		children = (
+			000027100000000562001010,
+			000027100000000562001011,
+			000027100000000562001012,
+			000027100000000562001013,
+			000027100000000562001014,
+			000027100000000562001015,
+			000027100000000562001016,
+		);
+		name = "libhdate.experimental";
+	};
+
+	000027100000000562001017 = {
+		isa = PBXGroup;
+		path = "resources";
+		sourceTree = "<group>";
+		children = (
+		);
+		name = "resources";
+	};
+
+	000027100000000562001019 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_sun_time.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/hdate_sun_time.c";
+	};
+
+	000027100000000562001020 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "hdate_sun_time.h";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/hdate_sun_time.h";
+	};
+
+	000027100000000562001021 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hebrewdate.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/hebrewdate.c";
+	};
+
+	000027100000000562001022 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "hebrewdate.h";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/hebrewdate.h";
+	};
+
+	000027100000000562001023 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "JewishClock2.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/JewishClock2.c";
+	};
+
+	000027100000000562001025 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "text";
+		name = "pebble-js-app.js";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/js/pebble-js-app.js";
+	};
+
+	000027100000000562001024 = {
+		isa = PBXGroup;
+		path = "js";
+		sourceTree = "<group>";
+		children = (
+			000027100000000562001025,
+		);
+		name = "js";
+	};
+
+	000027100000000562001026 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "my_math.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/my_math.c";
+	};
+
+	000027100000000562001027 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "my_math.h";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/my_math.h";
+	};
+
+	000027100000000562001029 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "resource_ids.auto.h";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/src/resource_ids.auto.h";
+	};
+
+	000027100000000562001028 = {
+		isa = PBXGroup;
+		path = "src";
+		sourceTree = "<group>";
+		children = (
+			000027100000000562001029,
+		);
+		name = "src";
+	};
+
+	000027100000000562001030 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "xprintf.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/xprintf.c";
+	};
+
+	000027100000000562001031 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "xprintf.h";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/xprintf.h";
+	};
+
+	000027100000000562001018 = {
+		isa = PBXGroup;
+		path = "src";
+		sourceTree = "<group>";
+		children = (
+			000027100000000562001019,
+			000027100000000562001020,
+			000027100000000562001021,
+			000027100000000562001022,
+			000027100000000562001023,
+			000027100000000562001024,
+			000027100000000562001026,
+			000027100000000562001027,
+			000027100000000562001028,
+			000027100000000562001030,
+			000027100000000562001031,
+		);
+		name = "src";
+	};
+
+	000027100000000562001032 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "text";
+		name = "wscript";
+		path = "/Users/ary/pebble-dev/JewishClock2/wscript";
+	};
+
+	000027100000000562001034 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "text";
+		name = "waf-xcode.sh";
+		path = "/Users/ary/pebble-dev/JewishClock2/xcode/waf-xcode.sh";
+	};
+
+	000027100000000562001033 = {
+		isa = PBXGroup;
+		path = "xcode";
+		sourceTree = "<group>";
+		children = (
+			000027100000000562001034,
+		);
+		name = "xcode";
+	};
+
+	000027100000000562001035 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "pebble.h";
+		path = "/Users/ary/pebble-dev/PebbleSDK-2.0-BETA2/Pebble/include/pebble.h";
+	};
+
+	000027100000000562001036 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "pebble_app_info.h";
+		path = "/Users/ary/pebble-dev/PebbleSDK-2.0-BETA2/Pebble/include/pebble_app_info.h";
+	};
+
+	000027100000000562001037 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.h";
+		name = "pebble_fonts.h";
+		path = "/Users/ary/pebble-dev/PebbleSDK-2.0-BETA2/Pebble/include/pebble_fonts.h";
+	};
+
+	000027100000000562001003 = {
+		isa = PBXGroup;
+		path = "../";
+		sourceTree = "<group>";
+		children = (
+			000027100000000562001004,
+			000027100000000562001008,
+			000027100000000562001009,
+			000027100000000562001017,
+			000027100000000562001018,
+			000027100000000562001032,
+			000027100000000562001033,
+			000027100000000562001035,
+			000027100000000562001036,
+			000027100000000562001037,
+		);
+		name = "JewishClock2";
+	};
+
+	000027100000000562001001 = {
+		isa = XCBuildConfiguration;
+		baseConfigurationReference = "";
+		buildSettings = {
+			COMBINE_HIDPI_IMAGES = "YES";
+			ONLY_ACTIVE_ARCH = "YES";
+		};
+		name = "waf";
+	};
+
+	000027100000000562001002 = {
+		isa = XCConfigurationList;
+		buildConfigurations = (
+			000027100000000562001001,
+		);
+		defaultConfigurationIsVisible = 0;
+		defaultConfigurationName = "waf";
+	};
+
+	000027100000000562001006 = {
+		isa = XCBuildConfiguration;
+		baseConfigurationReference = "";
+		buildSettings = {
+			COMBINE_HIDPI_IMAGES = "YES";
+			ONLY_ACTIVE_ARCH = "YES";
+		};
+		name = "waf";
+	};
+
+	000027100000000562001007 = {
+		isa = XCConfigurationList;
+		buildConfigurations = (
+			000027100000000562001006,
+		);
+		defaultConfigurationIsVisible = 0;
+		defaultConfigurationName = "waf";
+	};
+
+	000027100000000562001005 = {
+		isa = PBXLegacyTarget;
+		buildArgumentsString = "$(ACTION)";
+		name = "waf";
+		productName = "waf";
+		passBuildSettingsInEnvironment = 1;
+		buildWorkingDirectory = "";
+		dependencies = (
+		);
+		buildConfigurationList = 000027100000000562001007;
+		buildToolPath = "./waf-xcode.sh";
+		buildPhases = (
+		);
+	};
+
+	000027100000000562001041 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "wrapper.application";
+		name = "index_dummy";
+		path = "";
+	};
+
+	000027100000000562001039 = {
+		isa = XCBuildConfiguration;
+		baseConfigurationReference = "";
+		buildSettings = {
+			HEADER_SEARCH_PATHS = "$(SRCROOT)/../src/**";
+			PRODUCT_NAME = "index_dummy";
+			ONLY_ACTIVE_ARCH = "YES";
+			COMBINE_HIDPI_IMAGES = "YES";
+		};
+		name = "waf";
+	};
+
+	000027100000000562001040 = {
+		isa = XCConfigurationList;
+		buildConfigurations = (
+			000027100000000562001039,
+		);
+		defaultConfigurationIsVisible = 0;
+		defaultConfigurationName = "waf";
+	};
+
+	000027100000000562001011 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_holyday.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_holyday.c";
+	};
+
+	000027100000000562001043 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001011;
+	};
+
+	000027100000000562001012 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_julian.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_julian.c";
+	};
+
+	000027100000000562001044 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001012;
+	};
+
+	000027100000000562001013 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_parasha.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_parasha.c";
+	};
+
+	000027100000000562001045 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001013;
+	};
+
+	000027100000000562001014 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_strings.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_strings.c";
+	};
+
+	000027100000000562001046 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001014;
+	};
+
+	000027100000000562001015 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_sun_time.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/libhdate.experimental/hdate_sun_time.c";
+	};
+
+	000027100000000562001047 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001015;
+	};
+
+	000027100000000562001019 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hdate_sun_time.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/hdate_sun_time.c";
+	};
+
+	000027100000000562001048 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001019;
+	};
+
+	000027100000000562001021 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "hebrewdate.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/hebrewdate.c";
+	};
+
+	000027100000000562001049 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001021;
+	};
+
+	000027100000000562001023 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "JewishClock2.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/JewishClock2.c";
+	};
+
+	000027100000000562001050 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001023;
+	};
+
+	000027100000000562001026 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "my_math.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/my_math.c";
+	};
+
+	000027100000000562001051 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001026;
+	};
+
+	000027100000000562001030 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "sourcecode.c.c";
+		name = "xprintf.c";
+		path = "/Users/ary/pebble-dev/JewishClock2/src/xprintf.c";
+	};
+
+	000027100000000562001052 = {
+		isa = PBXBuildFile;
+		fileRef = 000027100000000562001030;
+	};
+
+	000027100000000562001042 = {
+		isa = PBXSourcesBuildPhase;
+		files = (
+			000027100000000562001043,
+			000027100000000562001044,
+			000027100000000562001045,
+			000027100000000562001046,
+			000027100000000562001047,
+			000027100000000562001048,
+			000027100000000562001049,
+			000027100000000562001050,
+			000027100000000562001051,
+			000027100000000562001052,
+		);
+		buildActionMask = 2147483647;
+		runOnlyForDeploymentPostprocessing = 0;
+	};
+
+	000027100000000562001038 = {
+		isa = PBXNativeTarget;
+		productReference = 000027100000000562001041;
+		name = "index_dummy";
+		productName = "index_dummy";
+		dependencies = (
+		);
+		productType = "com.apple.product-type.tool";
+		buildRules = (
+		);
+		buildConfigurationList = 000027100000000562001040;
+		buildPhases = (
+			000027100000000562001042,
+		);
+	};
+
+	000027100000000562001057 = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = "wrapper.application";
+		name = "clar_tests";
+		path = "";
+	};
+
+	000027100000000562001058 = {
+		isa = XCBuildConfiguration;
+		baseConfigurationReference = "";
+		buildSettings = {
+			WRAPPER_EXTENSION = "octest";
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			ONLY_ACTIVE_ARCH = "YES";
+			COMBINE_HIDPI_IMAGES = "YES";
+		};
+		name = "waf";
+	};
+
+	000027100000000562001059 = {
+		isa = XCConfigurationList;
+		buildConfigurations = (
+			000027100000000562001058,
+		);
+		defaultConfigurationIsVisible = 0;
+		defaultConfigurationName = "waf";
+	};
+
+	000027100000000562001056 = {
+		isa = PBXShellScriptBuildPhase;
+		files = (
+		);
+		shellPath = "/bin/sh";
+		buildActionMask = 2147483647;
+		inputPaths = (
+		);
+		outputPaths = (
+		);
+		shellScript = "export ACTION=test
+./waf-xcode.sh";
+		runOnlyForDeploymentPostProcessing = 1;
+	};
+
+	000027100000000562001053 = {
+		isa = PBXNativeTarget;
+		productReference = 000027100000000562001057;
+		name = "clar_tests";
+		productName = "clar_tests";
+		dependencies = (
+		);
+		productType = "com.apple.product-type.bundle";
+		buildRules = (
+		);
+		buildConfigurationList = 000027100000000562001059;
+		buildPhases = (
+			000027100000000562001056,
+		);
+	};
+
+	000027100000000562001000 = {
+		isa = PBXProject;
+		projectDirPath = "";
+		projectRoot = "";
+		hasScannedForEncodings = 1;
+		compatibilityVersion = "Xcode 3.2";
+		mainGroup = 000027100000000562001003;
+		buildConfigurationList = 000027100000000562001002;
+		targets = (
+			000027100000000562001005,
+			000027100000000562001038,
+			000027100000000562001053,
+		);
+	};
+
+	};
+	rootObject = 000027100000000562001000;
+}

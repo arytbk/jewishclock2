@@ -4,14 +4,16 @@
   "longName": "Jewish Clock 2",
   "capabilities": [ "location" ],
   "companyName": "Ary Tebeka",
-  "versionCode": 2,
-  "versionLabel": "2.0.0",
+  "versionCode": 1,
+  "versionLabel": "1.0.0",
   "watchapp": {
     "watchface": true
   },
   "appKeys": {
-      "city": 2,
-      "temperature": 1
+      "latitude": 1,
+      "longitude": 2,
+      "timezone": 3,
+      "dst": 4
   },
   "resources": {
     "media": []

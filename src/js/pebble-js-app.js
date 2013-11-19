@@ -1,33 +1,31 @@
 function fetchWeather(latitude, longitude) {
-  var response;
-  var req = new XMLHttpRequest();
-  req.open('GET', "http://api.openweathermap.org/data/2.1/find/city?" +
-    "lat=" + latitude + "&lon=" + longitude + "&cnt=1", true);
-  req.onload = function(e) {
-    if (req.readyState == 4) {
-      if(req.status == 200) {
-        console.log(req.responseText);
-        response = JSON.parse(req.responseText);
-        var temperature, icon, city;
-        if (response && response.list && response.list.length > 0) {
-          var weatherResult = response.list[0];
-          temperature = Math.round(weatherResult.main.temp - 273.15);
-          // icon = iconFromWeatherId(weatherResult.weather[0].id);
-          city = weatherResult.name;
-          console.log(temperature);
-          console.log(icon);
-          console.log(city);
-          Pebble.sendAppMessage({
-            "temperature":temperature + "\u00B0C",
-            "city":city});
+    var response;
+    var req = new XMLHttpRequest();
+    req.open('GET', "https://maps.googleapis.com/maps/api/timezone/json?location=" + latitude + "," + longitude + "&timestamp=" + Math.round(new Date().getTime() / 1000) + "&sensor=true");
+    req.onload = function(e) {
+        if (req.readyState == 4) {
+            if(req.status == 200) {
+                console.log("RESPONSE ******");
+                console.log(req.responseText);
+                response = JSON.parse(req.responseText);
+                console.log("PARSING *****");
+                var dst = parseInt(response.dstOffset);
+                var timezone = parseInt(response.rawOffset)/60;   // minutes
+                console.log(dst);
+                console.log(timezone);
+                var bigLat = Math.round(parseFloat(latitude)*1000);
+                var bigLon = Math.round(parseFloat(longitude)*1000);
+                console.log(bigLat);
+                console.log(bigLon);
+                Pebble.sendAppMessage({
+                                      "latitude":bigLat,
+                                      "longitude":bigLon,
+                                      "timezone":timezone,
+                                      "dst":dst});
+            }
         }
-
-      } else {
-        console.log("Error");
-      }
     }
-  }
-  req.send(null);
+    req.send(null);
 }
 
 function locationSuccess(pos) {

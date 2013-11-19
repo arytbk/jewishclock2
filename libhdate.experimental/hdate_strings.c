@@ -83,9 +83,11 @@ char * hdate_get_format_date (hdate_struct const *h, int const diaspora, int con
 	int holiday			= 0;
 	char *bet_h         = "";	// Hebrew prefix for Hebrew month
 
-	char *hebrew_buffer1, *hebrew_buffer2;
-	size_t hebrew_buffer1_len = -1;
-	size_t hebrew_buffer2_len = -1;
+	char *hebrew_buffer1=0, *hebrew_buffer2=0;
+	int hebrew_buffer1_len = -1;
+	int hebrew_buffer2_len = -1;
+    
+    static char tmp_string[256];
 
 	char *hday_int_str, *hyear_int_str, *omer_str;
 
@@ -109,10 +111,11 @@ char * hdate_get_format_date (hdate_struct const *h, int const diaspora, int con
 	************************************************************/
 	if (short_format)
 	{
-		hebrew_buffer1_len = asprintf (&hebrew_buffer1, "%s %s %s\n",
+		hebrew_buffer1_len = snprintf(tmp_string, 255, "%s %s %s\n",
 				hday_int_str,
 				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, HDATE_STRING_LONG, hebrew_format),
 				hyear_int_str);
+        strcpy(hebrew_buffer1, tmp_string);
 	}
 
 
@@ -121,32 +124,35 @@ char * hdate_get_format_date (hdate_struct const *h, int const diaspora, int con
 	************************************************************/
 	else
 	{
-		hebrew_buffer1_len = asprintf (&hebrew_buffer1, "%s %s%s %s",
+		hebrew_buffer1_len = snprintf(tmp_string, 255, "%s %s%s %s",
 				hday_int_str,
 				bet_h,
 				hdate_string( HDATE_STRING_HMONTH , h->hd_mon, HDATE_STRING_LONG, hebrew_format),
 				hyear_int_str);
+        strcpy(hebrew_buffer1, tmp_string);
 
 		/* if a day in the omer print it */
-		if (hebrew_buffer1_len > 0) omer_day = hdate_get_omer_day(h);
+		if (hebrew_buffer1_len != -1) omer_day = hdate_get_omer_day(h);
 		if (omer_day != 0)
 		{
 			omer_str = hdate_string(HDATE_STRING_OMER, omer_day, HDATE_STRING_LONG, hebrew_format);
-			hebrew_buffer2_len = asprintf (&hebrew_buffer2, "%s, %s", hebrew_buffer1, omer_str);
+			hebrew_buffer2_len = snprintf(tmp_string, 255, "%s, %s", hebrew_buffer1, omer_str);
+            strcpy(hebrew_buffer2, tmp_string);
 			if (omer_str != NULL) free(omer_str);
 			free(hebrew_buffer1);
-			if (hebrew_buffer2_len > 0) hebrew_buffer1 = hebrew_buffer2;
+			if (hebrew_buffer2_len != -1) hebrew_buffer1 = hebrew_buffer2;
 			hebrew_buffer1_len = hebrew_buffer2_len;
 		}
 		
 		/* if holiday print it */
-		if (hebrew_buffer1_len > 0) holiday = hdate_get_holyday (h, diaspora);
+		if (hebrew_buffer1_len != -1) holiday = hdate_get_holyday (h, diaspora);
 		if (holiday != 0)
 		{
-			hebrew_buffer2_len = asprintf (&hebrew_buffer2, "%s, %s", hebrew_buffer1,
+			hebrew_buffer2_len = snprintf(tmp_string, 255, "%s, %s", hebrew_buffer1,
 		  			hdate_string( HDATE_STRING_HOLIDAY, holiday, HDATE_STRING_LONG, hebrew_format));
+            strcpy(hebrew_buffer2, tmp_string);
 			free(hebrew_buffer1);
-			if (hebrew_buffer2_len > 0) hebrew_buffer1 = hebrew_buffer2;
+			if (hebrew_buffer2_len != -1) hebrew_buffer1 = hebrew_buffer2;
 			hebrew_buffer1_len = hebrew_buffer2_len;
 		}
 
@@ -154,7 +160,7 @@ char * hdate_get_format_date (hdate_struct const *h, int const diaspora, int con
 
 	free(hday_int_str);
 	free(hyear_int_str);
-	if (hebrew_buffer1_len > 0) return hebrew_buffer1;
+	if (hebrew_buffer1_len != -1) return hebrew_buffer1;
 	return NULL;
 }
 
@@ -475,6 +481,8 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 		 "יום הזכרון ליצחק רבין","יום ז\'בוטינסקי",
 		 "עיוה\"כ"}	}
 		};
+    
+    static char tmp_string[256];
 
 #ifdef ENABLE_NLS
 	bindtextdomain (PACKAGE, PACKAGE_LOCALE_DIR);
@@ -510,8 +518,8 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 					h_int_string = hdate_string(HDATE_STRING_INT, index, HDATE_STRING_LONG, hebrew_form);
 					if (h_int_string == NULL) return NULL;
 					
-					return_string_len = asprintf(
-							&return_string, "%s %s", h_int_string, _("in the Omer"));
+					return_string_len = snprintf(tmp_string, 255, "%s %s", h_int_string, _("in the Omer"));
+                    strcpy(return_string, tmp_string);
 
 					free(h_int_string);
 
@@ -525,7 +533,8 @@ char* hdate_string( int const type_of_string, int const index, int const input_s
 					// not hebrew form - return the number in decimal form
 					if (!hebrew_form)
 					{
-						return_string_len = asprintf (&return_string, "%d", index);
+						return_string_len = snprintf(tmp_string, 255, "%d", index);
+                        strcpy(return_string, tmp_string);
 						if (return_string_len == -1) return NULL;
 						return return_string;
 					}
