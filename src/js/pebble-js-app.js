@@ -1,4 +1,4 @@
-function fetchWeather(latitude, longitude) {
+function fetchTimezone(latitude, longitude) {
     var response;
     var req = new XMLHttpRequest();
     req.open('GET', "https://maps.googleapis.com/maps/api/timezone/json?location=" + latitude + "," + longitude + "&timestamp=" + Math.round(new Date().getTime() / 1000) + "&sensor=true");
@@ -30,7 +30,7 @@ function fetchWeather(latitude, longitude) {
 
 function locationSuccess(pos) {
   var coordinates = pos.coords;
-  fetchWeather(coordinates.latitude, coordinates.longitude);
+  fetchTimezone(coordinates.latitude, coordinates.longitude);
 }
 
 function locationError(err) {

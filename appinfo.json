@@ -16,6 +16,30 @@
       "dst": 4
   },
   "resources": {
-    "media": []
+      "media": [
+            {
+            "menuIcon": true,
+            "type": "png",
+            "name": "IMAGE_MENU_ICON",
+            "file": "images/menu_icon.png"
+            },
+            {
+            "characterRegex": "[A-Za-z0]",
+            "name": "FONT_MOON_PHASES_SUBSET_30",
+            "type": "font",
+            "file": "fonts/moon_phases.ttf"
+            },
+            {
+            "type": "font",
+            "characterRegex": "[:0-9]",
+            "name": "FONT_ROBOTO_BOLD_SUBSET_49",
+            "file": "fonts/Roboto-Bold.ttf"
+            },
+            {
+            "name": "FONT_ROBOTO_CONDENSED_21",
+            "type": "font",
+            "file": "fonts/Roboto-Condensed.ttf"
+            }
+    ]
   }
 }
