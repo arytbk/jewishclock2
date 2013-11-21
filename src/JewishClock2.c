@@ -1,3 +1,5 @@
+#define USE_WEATHER
+
 #include <pebble.h>
 #include "hebrewdate.h"
 #include "hdate_sun_time.h"
@@ -18,15 +20,15 @@ static TextLayer *timeLayer;           char timeString[]=          "00:00";
 static Layer *lineLayer;
 static TextLayer *zmanHourLabelLayer;  char zmanHourLabelString[]= "Hour #";
 static TextLayer *nextHourLabelLayer;  char nextHourLabelString[]= "Next In:";
-//static Layer *sunGraphLayer;
-//static TextLayer *currentZmanLayer;    char currentZmanString[]=   "Mincha Gedola";
-//static TextLayer *EndOfZmanLayer;      char endOfZmanString[]=     "00:00";
+static Layer *sunGraphLayer;
+static TextLayer *currentZmanLayer;    char currentZmanString[]=   "Mincha Gedola";
+static TextLayer *EndOfZmanLayer;      char endOfZmanString[]=     "00:00";
 static TextLayer *zmanHourLayer;       char zmanHourString[]=      "11";
 static TextLayer *nextHourLayer;       char nextHourString[]=      "01:07:00";
 static TextLayer *alertLayer;          char alertString[]=    "SUNSET IN 000mn";
 static TextLayer *sunriseLayer;        char sunriseString[]=       "00:00";
 static TextLayer *sunsetLayer;         char sunsetString[]=        "00:00";
-//static TextLayer *hatsotLayer;         char hatsotString[]=        "00:00";
+static TextLayer *hatsotLayer;         char hatsotString[]=        "00:00";
 static TextLayer *temperature_layer;
 static TextLayer *citylayer;
 static BitmapLayer *icon_layer_white;
@@ -54,17 +56,17 @@ int zmanHourNumber;         // current zman hour number
 float zmanHourDuration;     // zman hour duration
 
 // Sun path
-//GPath *sun_path;
-//GPathInfo sun_path_info = {
-//    5,
-//    (GPoint []) {
-//        {0, 0},
-//        {-73, +84}, //replaced by sunrise angle
-//        {-73, +84}, //bottom left
-//        {+73, +84}, //bottom right
-//        {+73, +84}, //replaced by sunset angle
-//    }
-//};
+GPath *sun_path;
+GPathInfo sun_path_info = {
+    5,
+    (GPoint []) {
+        {0, 0},
+        {-73, +84}, //replaced by sunrise angle
+        {-73, +84}, //bottom left
+        {+73, +84}, //bottom right
+        {+73, +84}, //replaced by sunset angle
+    }
+};
 
 // Weather Icons
 static const uint32_t WEATHER_ICONS_WHITE[] = {
@@ -160,16 +162,12 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
             }
             icon_white = gbitmap_create_with_resource(WEATHER_ICONS_WHITE[index]);
             icon_black = gbitmap_create_with_resource(WEATHER_ICONS_BLACK[index]);
-//            bitmap_layer_set_bitmap(icon_layer, icon_bitmap);
-//            GRect image_frame = (GRect) { .origin = center, .size = icon_white->bounds.size };
             
             // Use GCompOpOr to display the white portions of the image
-//            icon_layer_white = bitmap_layer_create(image_frame);
             bitmap_layer_set_bitmap(icon_layer_white, icon_white);
             bitmap_layer_set_compositing_mode(icon_layer_white, GCompOpOr);
             
             // Use GCompOpClear to display the black portions of the image
-//            icon_layer_black = bitmap_layer_create(image_frame);
             bitmap_layer_set_bitmap(icon_layer_black, icon_black);
             bitmap_layer_set_compositing_mode(icon_layer_black, GCompOpClear);
             break;
@@ -267,7 +265,6 @@ void lineLayerUpdate(Layer *me, GContext* ctx) {
 }
 
 // Draw sun graph
-/*
 void sunGraphLayerUpdate(Layer *me, GContext* ctx)
 {
     (void)me;
@@ -302,7 +299,6 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
     GPoint toPoint = GPoint(sunCenter.x + my_cos(angle)*sunSize/2, sunCenter.y - my_sin(angle)*sunSize/2);
     graphics_draw_line(ctx, sunCenter, toPoint);
 }
-*/
 
 // Update time
 void updateTime() {
@@ -430,16 +426,16 @@ void updateMoonAndSun() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "LOCAL Sunrise=%i, LOCAL Sunset = %i", sunriseTime, sunsetTime);
     
     displayTime(sunriseTime, sunriseLayer, sunriseString, sizeof(sunriseString));
-//    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
+    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
     displayTime(sunsetTime, sunsetLayer, sunsetString, sizeof(sunsetString));
     
     // SUN GRAPHIC
-//    float rise2 = minutes2Hours(sunriseTime)+12.0f;
-//    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
-//    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
-//    float set2 =  minutes2Hours(sunsetTime)+12.0f;
-//    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
-//    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
+    float rise2 = minutes2Hours(sunriseTime)+12.0f;
+    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
+    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
+    float set2 =  minutes2Hours(sunsetTime)+12.0f;
+    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
+    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
 }
 
 
@@ -481,7 +477,7 @@ void doEveryMinute() {
     updateTime();
     updateZmanim();
     // Must update Sun Graph rendering
-//    layer_mark_dirty(sunGraphLayer);
+    layer_mark_dirty(sunGraphLayer);
     checkAlerts();
 }
 
@@ -614,16 +610,20 @@ static void window_load(Window *window) {
     text_layer_set_text(nextHourLabelLayer, nextHourLabelString);
     
     // Sun Graph
-//    sunGraphLayer = layer_create(GRect(72-sunSize/2, sunY, sunSize+2, sunSize+2));
-//    layer_set_update_proc(sunGraphLayer, &sunGraphLayerUpdate);
-//    layer_set_clips(sunGraphLayer, true);
-//    layer_add_child(window_layer, sunGraphLayer);
+    sunGraphLayer = layer_create(GRect(72-sunSize/2, sunY, sunSize+2, sunSize+2));
+    layer_set_update_proc(sunGraphLayer, &sunGraphLayerUpdate);
+    layer_set_clips(sunGraphLayer, true);
+#ifndef USE_WEATHER
+    layer_add_child(window_layer, sunGraphLayer);   // Show sun graph instead of weather icon
+#endif
     
     // Weather Icon
     icon_layer_white = bitmap_layer_create(GRect(32, 82, 80, 80));
-    layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer_white));
     icon_layer_black = bitmap_layer_create(GRect(32, 82, 80, 80));
+#ifdef USE_WEATHER
     layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer_black));
+    layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer_white));
+#endif
     
     // Optional Alert message
     initTextLayer(&alertLayer, 0, 102, 144, 36, kBackgroundColor, kTextColor, GTextAlignmentCenter, mediumBoldFont);
@@ -639,10 +639,16 @@ static void window_load(Window *window) {
     initTextLayer(&sunriseLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     
     // Hatsot hour
-//    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
+    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
+#ifdef USE_WEATHER
+    layer_remove_from_parent(text_layer_get_layer(hatsotLayer));
+#endif
     
     // Temperature
     initTextLayer(&temperature_layer, 0, 138, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, mediumFont);
+#ifndef USE_WEATHER
+    layer_remove_from_parent(text_layer_get_layer(temperature_layer));
+#endif
     
     //  Sunset hour
     initTextLayer(&sunsetLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
@@ -685,11 +691,11 @@ static void window_unload(Window *window) {
     text_layer_destroy(alertLayer);
     text_layer_destroy(sunriseLayer);
     text_layer_destroy(sunsetLayer);
-//    text_layer_destroy(hatsotLayer);
+    text_layer_destroy(hatsotLayer);
     text_layer_destroy(temperature_layer);
     
     layer_destroy(lineLayer);
-//    layer_destroy(sunGraphLayer);
+    layer_destroy(sunGraphLayer);
     
     bitmap_layer_destroy(icon_layer_black);
     bitmap_layer_destroy(icon_layer_white);
