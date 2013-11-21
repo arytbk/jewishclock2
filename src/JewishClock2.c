@@ -42,9 +42,10 @@ const int kBackgroundColor = GColorBlack;
 const int kTextColor = GColorWhite;
 
 // Global variables
-double Jlatitude, Jlongitude;
+int Jlatitude, Jlongitude;
 int Jtimezone;
-bool Jdst;
+int Jdst;
+char *Jcity;
 struct tm *currentPblTime  ;   // Keep current time so its available in all functions
 int hebrewDayNumber;        // Current hebrew day
 char *timeFormat;           // Format string to use for times (must change according to 24h or 12h option)
@@ -94,8 +95,17 @@ enum JewishClockKey {
     WEATHER_CITY_KEY = 0x6
 };
 
+// Storage Keys
+const uint32_t STORAGE_LATITUDE = 0x1000;
+const uint32_t STORAGE_LONGITUDE = 0x1001;
+const uint32_t STORAGE_TIMEZONE = 0x1002;
+const uint32_t STORAGE_DST = 0x1003;
+const uint32_t STORAGE_TEMPERATURE = 0x1004;
+const uint32_t STORAGE_ICON = 0x1005;
+const uint32_t STORAGE_CITY = 0x1006;
+
 // Some function definitions
-void updateWatch(bool forceUpdate);
+void updateWatch();
 void doEveryDay();
 void doEveryHour();
 void doEveryMinute();
@@ -115,26 +125,26 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
     switch (key) {
       case LATITUDE_KEY: {
           int newLat = new_tuple->value->int32;
-          Jlatitude = ((float)newLat)/1000.0;
-          updateWatch(true);
+          Jlatitude = newLat;
+          updateWatch();
       break;
       }
       case LONGITUDE_KEY: {
           int newLon = new_tuple->value->int32;
-          Jlongitude = ((float)newLon)/1000.0;
-          updateWatch(true);
+          Jlongitude = newLon;
+          updateWatch();
           break;
       }
       case TIMEZONE_KEY: {
           int newTz = new_tuple->value->int32;
           Jtimezone = newTz;
-          updateWatch(true);
+          updateWatch();
           break;
       }
       case DST_KEY: {
           int newDst = new_tuple->value->int32;
-          Jdst = (newDst != 0);
-          updateWatch(true);
+          Jdst = newDst;
+          updateWatch();
           break;
       }
         case WEATHER_ICON_KEY: {
@@ -169,7 +179,8 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
             break;
         }
         case WEATHER_CITY_KEY: {
-            text_layer_set_text(citylayer, new_tuple->value->cstring);
+            strcpy(Jcity, new_tuple->value->cstring);
+            text_layer_set_text(citylayer, Jcity);
             break;
         }
     }
@@ -201,8 +212,7 @@ void initTextLayer(TextLayer **theLayer, int x, int y, int w, int h, GColor text
 
 void adjustTimezone(int* time)  // time as minutes since midnight
 {
-    // ****************** warning tm_idst is not implemented yet, currently using a compile flag, find another way! ********************
-    if (Jdst)  // Currently using DST flag in config.h
+    if (Jdst != 0)
     {
         *time += 60;
     }
@@ -404,8 +414,10 @@ void updateMoonAndSun() {
     //  sunriseTime = hours2Minutes(calcSunRise(currentPblTime.tm_year, currentPblTime.tm_mon+1, currentPblTime.tm_mday, LATITUDE, LONGITUDE, 91.0f));
     //  sunsetTime = hours2Minutes(calcSunSet(currentPblTime.tm_year, currentPblTime.tm_mon+1, currentPblTime.tm_mday, LATITUDE, LONGITUDE, 91.0f));
     
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "SUN CALCULATION with lat=%i lon=%i, timezone=%i, dst=%i",(int)(Jlatitude*1000.0), (int)(Jlongitude*1000.0), Jtimezone, Jdst);
-    hdate_get_utc_sun_time(currentPblTime->tm_mday, (currentPblTime->tm_mon)+1, currentPblTime->tm_year, Jlatitude, Jlongitude, &sunriseTime, &sunsetTime);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "SUN CALCULATION with lat=%i lon=%i, timezone=%i, dst=%i", Jlatitude, Jlongitude, Jtimezone, Jdst);
+    double Dlat=((double)Jlatitude)/1000.0;
+    double Dlong = ((double)Jlongitude)/1000.0;
+    hdate_get_utc_sun_time(currentPblTime->tm_mday, (currentPblTime->tm_mon)+1, currentPblTime->tm_year, Dlat, Dlong, &sunriseTime, &sunsetTime);
 	hatsotTime = (sunriseTime+sunsetTime)/2;
     
     APP_LOG(APP_LOG_LEVEL_DEBUG, "UTC Sunrise=%i, UTC Sunset = %i", sunriseTime, sunsetTime);
@@ -472,16 +484,21 @@ void doEveryMinute() {
     checkAlerts();
 }
 
-// ************* Update watch as needed, calls required update functions at the right times, and once at startup
-void updateWatch(bool forceUpdate) {
+// ************* Update watch with current data
+void updateWatch() {
+    currentTime = (currentPblTime->tm_hour * 60) + currentPblTime->tm_min;
+    doEveryDay();
+    doEveryHour();
+    doEveryMinute();
+}
+
+// ************* TICK HANDLER *****************
+// Handles the system minute-tick, calls appropriate functions above
+static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
+    currentPblTime = tick_time;
     static int currentYDay = -1;
     static int currentHour = -1;
-    if(forceUpdate) {
-        currentYDay = currentHour = -1;
-    }
     
-    currentTime = (currentPblTime->tm_hour * 60) + currentPblTime->tm_min;
-
     // call update functions as required, daily first, then hourly, then minute
     if(currentPblTime->tm_yday != currentYDay) {  // Day has changed, or app just started
         currentYDay = currentPblTime->tm_yday;
@@ -490,28 +507,50 @@ void updateWatch(bool forceUpdate) {
     if(currentPblTime->tm_hour != currentHour) {  // Hour has changed, or app just started
         currentHour = currentPblTime->tm_hour;
         doEveryHour();
+        send_cmd(); // ask phone for updated data once per hour
     }
     doEveryMinute();
-}
-
-// ************* TICK HANDLER *****************
-// Handles the system minute-tick, calls appropriate functions above
-static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
-    currentPblTime = tick_time;
-    updateWatch(false);
 }
 
 static void window_load(Window *window) {
     Layer *window_layer = window_get_root_layer(window);
 
+    // Try to load values from storage
+    
+    // Default Values
+    Jcity = "Unknow City, updating...";
+    Jlatitude = Jlongitude = Jtimezone = Jdst = 0;
+    
+    // Check if in storage
+    if(persist_exists(STORAGE_LATITUDE)) {
+        Jlatitude = persist_read_int(STORAGE_LATITUDE);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored Latitude: %i", Jlatitude);
+    }
+    if(persist_exists(STORAGE_LONGITUDE)) {
+        Jlongitude = persist_read_int(STORAGE_LONGITUDE);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored Longitude: %i", Jlongitude);
+    }
+    if(persist_exists(STORAGE_TIMEZONE)) {
+        Jtimezone = persist_read_int(STORAGE_TIMEZONE);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored Timezone: %i", Jtimezone);
+    }
+    if(persist_exists(STORAGE_DST)) {
+        Jdst = persist_read_int(STORAGE_DST);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored DST: %i", Jdst);
+    }
+    if(persist_exists(STORAGE_CITY)) {
+        persist_read_string(STORAGE_CITY, Jcity, 22);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored City: %s", Jcity);
+    }
+    
     Tuplet initial_values[] = {
-      TupletInteger(LATITUDE_KEY, 0),
-      TupletInteger(LONGITUDE_KEY, 0),
-        TupletInteger(TIMEZONE_KEY, 0),
-        TupletInteger(DST_KEY, 0),
-        TupletCString(WEATHER_TEMPERATURE_KEY, "0"),
-        TupletCString(WEATHER_CITY_KEY, "Unknown"),
-        TupletInteger(WEATHER_ICON_KEY, (uint8_t) 1),
+      TupletInteger(LATITUDE_KEY, Jlatitude),
+      TupletInteger(LONGITUDE_KEY, Jlongitude),
+        TupletInteger(TIMEZONE_KEY, Jtimezone),
+        TupletInteger(DST_KEY, Jdst),
+        TupletCString(WEATHER_TEMPERATURE_KEY, "Updating"),
+        TupletCString(WEATHER_CITY_KEY, Jcity),
+        TupletInteger(WEATHER_ICON_KEY, (uint8_t)1),
     };
 
     const int inbound_size = 124;
@@ -553,6 +592,7 @@ static void window_load(Window *window) {
     
     // City
     initTextLayer(&citylayer, 0, 32, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
+    text_layer_set_text(citylayer, Jcity);
     
     //  Time
     initTextLayer(&timeLayer, 0, 40, 144, 50, kTextColor, GColorClear, GTextAlignmentCenter, largeFont);
@@ -603,6 +643,7 @@ static void window_load(Window *window) {
     initTextLayer(&sunsetLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
     
     tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
+    updateWatch();
 }
 
 static void window_unload(Window *window) {
@@ -664,6 +705,14 @@ static void init(void) {
 
 static void deinit(void) {
     window_destroy(window);
+    
+    // Save values in storage
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "**** SAVING DATA IN STORAGE ****");
+    persist_write_int(STORAGE_LATITUDE, Jlatitude);
+    persist_write_int(STORAGE_LONGITUDE, Jlongitude);
+    persist_write_int(STORAGE_TIMEZONE, Jtimezone);
+    persist_write_int(STORAGE_DST, Jdst);
+    persist_write_string(STORAGE_CITY, Jcity);
 }
 
 int main(void) {
