@@ -10,10 +10,13 @@
     "watchface": true
   },
   "appKeys": {
-      "latitude": 1,
-      "longitude": 2,
-      "timezone": 3,
-      "dst": 4
+      "latitude": 0,
+      "longitude": 1,
+      "timezone": 2,
+      "dst": 3,
+      "temperature": 4,
+      "icon": 5,
+      "city": 6
   },
   "resources": {
       "media": [
@@ -22,6 +25,26 @@
             "type": "png",
             "name": "IMAGE_MENU_ICON",
             "file": "images/menu_icon.png"
+            },
+            {
+            "type": "png-trans",
+            "name": "IMAGE_SUN",
+            "file": "images/sun.png"
+            },
+            {
+            "type": "png-trans",
+            "name": "IMAGE_RAIN",
+            "file": "images/rain.png"
+            },
+            {
+            "type": "png-trans",
+            "name": "IMAGE_CLOUD",
+            "file": "images/cloud.png"
+            },
+            {
+            "type": "png-trans",
+            "name": "IMAGE_SNOW",
+            "file": "images/snow.png"
             },
             {
             "characterRegex": "[A-Za-z0]",

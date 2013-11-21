@@ -9,24 +9,30 @@ static Window *window;  // Main Window
 // ******************************************
 // Layers - top to bottom, left to right
 // ******************************************
-TextLayer *dayLayer;            char dayString[]=           "17";
-TextLayer *hDayLayer;           char hDayString[]=          "13";
-TextLayer *moonLayer;           char moonString[]=          "G";
-TextLayer *monthLayer;          char monthString[]=         "May";
-TextLayer *hMonthLayer;
-TextLayer *timeLayer;           char timeString[]=          "00:00";
-Layer *lineLayer;
-TextLayer *zmanHourLabelLayer;  char zmanHourLabelString[]= "Hour #";
-TextLayer *nextHourLabelLayer;  char nextHourLabelString[]= "Next In:";
-Layer *sunGraphLayer;
-//TextLayer *currentZmanLayer;    char currentZmanString[]=   "Mincha Gedola";
-//TextLayer *EndOfZmanLayer;      char endOfZmanString[]=     "00:00";
-TextLayer *zmanHourLayer;       char zmanHourString[]=      "11";
-TextLayer *nextHourLayer;       char nextHourString[]=      "01:07:00";
-TextLayer *alertLayer;          char alertString[]=    "SUNSET IN 000mn";
-TextLayer *sunriseLayer;        char sunriseString[]=       "00:00";
-TextLayer *sunsetLayer;         char sunsetString[]=        "00:00";
-TextLayer *hatsotLayer;         char hatsotString[]=        "00:00";
+static TextLayer *dayLayer;            char dayString[]=           "17";
+static TextLayer *hDayLayer;           char hDayString[]=          "13";
+static TextLayer *moonLayer;           char moonString[]=          "G";
+static TextLayer *monthLayer;          char monthString[]=         "May";
+static TextLayer *hMonthLayer;
+static TextLayer *timeLayer;           char timeString[]=          "00:00";
+static Layer *lineLayer;
+static TextLayer *zmanHourLabelLayer;  char zmanHourLabelString[]= "Hour #";
+static TextLayer *nextHourLabelLayer;  char nextHourLabelString[]= "Next In:";
+//static Layer *sunGraphLayer;
+//static TextLayer *currentZmanLayer;    char currentZmanString[]=   "Mincha Gedola";
+//static TextLayer *EndOfZmanLayer;      char endOfZmanString[]=     "00:00";
+static TextLayer *zmanHourLayer;       char zmanHourString[]=      "11";
+static TextLayer *nextHourLayer;       char nextHourString[]=      "01:07:00";
+static TextLayer *alertLayer;          char alertString[]=    "SUNSET IN 000mn";
+static TextLayer *sunriseLayer;        char sunriseString[]=       "00:00";
+static TextLayer *sunsetLayer;         char sunsetString[]=        "00:00";
+//static TextLayer *hatsotLayer;         char hatsotString[]=        "00:00";
+static TextLayer *temperature_layer;
+static TextLayer *citylayer;
+static BitmapLayer *icon_layer_white;
+static BitmapLayer *icon_layer_black;
+static GBitmap *icon_white = NULL;
+static GBitmap *icon_black = NULL;
 
 // Constants
 const int sunY = 104;
@@ -47,27 +53,45 @@ int zmanHourNumber;         // current zman hour number
 float zmanHourDuration;     // zman hour duration
 
 // Sun path
-GPath *sun_path;
-GPathInfo sun_path_info = {
-    5,
-    (GPoint []) {
-        {0, 0},
-        {-73, +84}, //replaced by sunrise angle
-        {-73, +84}, //bottom left
-        {+73, +84}, //bottom right
-        {+73, +84}, //replaced by sunset angle
-    }
+//GPath *sun_path;
+//GPathInfo sun_path_info = {
+//    5,
+//    (GPoint []) {
+//        {0, 0},
+//        {-73, +84}, //replaced by sunrise angle
+//        {-73, +84}, //bottom left
+//        {+73, +84}, //bottom right
+//        {+73, +84}, //replaced by sunset angle
+//    }
+//};
+
+// Weather Icons
+static const uint32_t WEATHER_ICONS_WHITE[] = {
+    RESOURCE_ID_IMAGE_SUN_WHITE, //0
+    RESOURCE_ID_IMAGE_CLOUD_WHITE, //1
+    RESOURCE_ID_IMAGE_RAIN_WHITE, //2
+    RESOURCE_ID_IMAGE_SNOW_WHITE //3
+};
+
+static const uint32_t WEATHER_ICONS_BLACK[] = {
+    RESOURCE_ID_IMAGE_SUN_BLACK, //0
+    RESOURCE_ID_IMAGE_CLOUD_BLACK, //1
+    RESOURCE_ID_IMAGE_RAIN_BLACK, //2
+    RESOURCE_ID_IMAGE_SNOW_BLACK //3
 };
 
 // AppMessage and AppSync
 static AppSync sync;
-static uint8_t sync_buffer[64];
+static uint8_t sync_buffer[124];
 
 enum JewishClockKey {
-    LATITUDE_KEY = 0x1,
-    LONGITUDE_KEY = 0x2,
-    TIMEZONE_KEY = 0x3,
-    DST_KEY = 0x4,
+    LATITUDE_KEY = 0x0,
+    LONGITUDE_KEY = 0x1,
+    TIMEZONE_KEY = 0x2,
+    DST_KEY = 0x3,
+    WEATHER_TEMPERATURE_KEY = 0x4,
+    WEATHER_ICON_KEY = 0x5,
+    WEATHER_CITY_KEY = 0x6
 };
 
 // Some function definitions
@@ -92,25 +116,63 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       case LATITUDE_KEY: {
           int newLat = new_tuple->value->int32;
           Jlatitude = ((float)newLat)/1000.0;
+          updateWatch(true);
       break;
       }
       case LONGITUDE_KEY: {
           int newLon = new_tuple->value->int32;
           Jlongitude = ((float)newLon)/1000.0;
+          updateWatch(true);
           break;
       }
       case TIMEZONE_KEY: {
           int newTz = new_tuple->value->int32;
           Jtimezone = newTz;
+          updateWatch(true);
           break;
       }
       case DST_KEY: {
           int newDst = new_tuple->value->int32;
           Jdst = (newDst != 0);
+          updateWatch(true);
           break;
       }
+        case WEATHER_ICON_KEY: {
+            if (icon_white) {
+                gbitmap_destroy(icon_white);
+            }
+            if (icon_black) {
+                gbitmap_destroy(icon_black);
+            }
+            int index = new_tuple->value->uint8;
+            if ((index<0) || (index>3)) {
+                index = 1;
+            }
+            icon_white = gbitmap_create_with_resource(WEATHER_ICONS_WHITE[index]);
+            icon_black = gbitmap_create_with_resource(WEATHER_ICONS_BLACK[index]);
+//            bitmap_layer_set_bitmap(icon_layer, icon_bitmap);
+//            GRect image_frame = (GRect) { .origin = center, .size = icon_white->bounds.size };
+            
+            // Use GCompOpOr to display the white portions of the image
+//            icon_layer_white = bitmap_layer_create(image_frame);
+            bitmap_layer_set_bitmap(icon_layer_white, icon_white);
+            bitmap_layer_set_compositing_mode(icon_layer_white, GCompOpOr);
+            
+            // Use GCompOpClear to display the black portions of the image
+//            icon_layer_black = bitmap_layer_create(image_frame);
+            bitmap_layer_set_bitmap(icon_layer_black, icon_black);
+            bitmap_layer_set_compositing_mode(icon_layer_black, GCompOpClear);
+            break;
+        }
+        case WEATHER_TEMPERATURE_KEY: {
+            text_layer_set_text(temperature_layer, new_tuple->value->cstring);
+            break;
+        }
+        case WEATHER_CITY_KEY: {
+            text_layer_set_text(citylayer, new_tuple->value->cstring);
+            break;
+        }
     }
-    updateWatch(true);
 }
 
 static void send_cmd(void) {
@@ -194,6 +256,7 @@ void lineLayerUpdate(Layer *me, GContext* ctx) {
 }
 
 // Draw sun graph
+/*
 void sunGraphLayerUpdate(Layer *me, GContext* ctx)
 {
     (void)me;
@@ -228,6 +291,7 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
     GPoint toPoint = GPoint(sunCenter.x + my_cos(angle)*sunSize/2, sunCenter.y - my_sin(angle)*sunSize/2);
     graphics_draw_line(ctx, sunCenter, toPoint);
 }
+*/
 
 // Update time
 void updateTime() {
@@ -353,16 +417,16 @@ void updateMoonAndSun() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "LOCAL Sunrise=%i, LOCAL Sunset = %i", sunriseTime, sunsetTime);
     
     displayTime(sunriseTime, sunriseLayer, sunriseString, sizeof(sunriseString));
-    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
+//    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
     displayTime(sunsetTime, sunsetLayer, sunsetString, sizeof(sunsetString));
     
     // SUN GRAPHIC
-    float rise2 = minutes2Hours(sunriseTime)+12.0f;
-    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
-    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
-    float set2 =  minutes2Hours(sunsetTime)+12.0f;
-    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
-    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
+//    float rise2 = minutes2Hours(sunriseTime)+12.0f;
+//    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
+//    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
+//    float set2 =  minutes2Hours(sunsetTime)+12.0f;
+//    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
+//    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
 }
 
 
@@ -404,7 +468,7 @@ void doEveryMinute() {
     updateTime();
     updateZmanim();
     // Must update Sun Graph rendering
-    layer_mark_dirty(sunGraphLayer);
+//    layer_mark_dirty(sunGraphLayer);
     checkAlerts();
 }
 
@@ -444,11 +508,14 @@ static void window_load(Window *window) {
       TupletInteger(LATITUDE_KEY, 0),
       TupletInteger(LONGITUDE_KEY, 0),
         TupletInteger(TIMEZONE_KEY, 0),
-        TupletInteger(DST_KEY, 0)
+        TupletInteger(DST_KEY, 0),
+        TupletCString(WEATHER_TEMPERATURE_KEY, "0"),
+        TupletCString(WEATHER_CITY_KEY, "Unknown"),
+        TupletInteger(WEATHER_ICON_KEY, (uint8_t) 1),
     };
 
-    const int inbound_size = 64;
-    const int outbound_size = 64;
+    const int inbound_size = 124;
+    const int outbound_size = 124;
     app_message_open(inbound_size, outbound_size);
     
     app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
@@ -475,7 +542,7 @@ static void window_load(Window *window) {
     initTextLayer(&hDayLayer, 0, 0, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
     
     //  Moon phase
-    initTextLayer(&moonLayer, 56, 9, 32, 32, kTextColor, GColorClear, GTextAlignmentCenter, moonFont);
+    initTextLayer(&moonLayer, 56, 7, 32, 32, kTextColor, GColorClear, GTextAlignmentCenter, moonFont);
     
     
     // Gregorian Month
@@ -483,6 +550,9 @@ static void window_load(Window *window) {
     
     // Hebrew Month
     initTextLayer(&hMonthLayer, 0, 25, 144, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
+    
+    // City
+    initTextLayer(&citylayer, 0, 32, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
     
     //  Time
     initTextLayer(&timeLayer, 0, 40, 144, 50, kTextColor, GColorClear, GTextAlignmentCenter, largeFont);
@@ -499,10 +569,16 @@ static void window_load(Window *window) {
     text_layer_set_text(nextHourLabelLayer, nextHourLabelString);
     
     // Sun Graph
-    sunGraphLayer = layer_create(GRect(72-sunSize/2, sunY, sunSize+2, sunSize+2));
-    layer_set_update_proc(sunGraphLayer, &sunGraphLayerUpdate);
-    layer_set_clips(sunGraphLayer, true);
-    layer_add_child(window_layer, sunGraphLayer);
+//    sunGraphLayer = layer_create(GRect(72-sunSize/2, sunY, sunSize+2, sunSize+2));
+//    layer_set_update_proc(sunGraphLayer, &sunGraphLayerUpdate);
+//    layer_set_clips(sunGraphLayer, true);
+//    layer_add_child(window_layer, sunGraphLayer);
+    
+    // Weather Icon
+    icon_layer_white = bitmap_layer_create(GRect(32, 82, 80, 80));
+    layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer_white));
+    icon_layer_black = bitmap_layer_create(GRect(32, 82, 80, 80));
+    layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer_black));
     
     // Optional Alert message
     initTextLayer(&alertLayer, 0, 102, 144, 36, kBackgroundColor, kTextColor, GTextAlignmentCenter, mediumBoldFont);
@@ -518,7 +594,10 @@ static void window_load(Window *window) {
     initTextLayer(&sunriseLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     
     // Hatsot hour
-    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
+//    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
+    
+    // Temperature
+    initTextLayer(&temperature_layer, 0, 138, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, mediumFont);
     
     //  Sunset hour
     initTextLayer(&sunsetLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
@@ -529,11 +608,19 @@ static void window_load(Window *window) {
 static void window_unload(Window *window) {
     app_sync_deinit(&sync);
 
+    if (icon_white) {
+        gbitmap_destroy(icon_white);
+    }
+    if (icon_black) {
+        gbitmap_destroy(icon_black);
+    }
+    
     text_layer_destroy(dayLayer);
     text_layer_destroy(hDayLayer);
     text_layer_destroy(moonLayer);
     text_layer_destroy(monthLayer);
     text_layer_destroy(hMonthLayer);
+    text_layer_destroy(citylayer);
     text_layer_destroy(timeLayer);
     text_layer_destroy(zmanHourLabelLayer);
     text_layer_destroy(nextHourLabelLayer);
@@ -544,10 +631,14 @@ static void window_unload(Window *window) {
     text_layer_destroy(alertLayer);
     text_layer_destroy(sunriseLayer);
     text_layer_destroy(sunsetLayer);
-    text_layer_destroy(hatsotLayer);
+//    text_layer_destroy(hatsotLayer);
+    text_layer_destroy(temperature_layer);
     
     layer_destroy(lineLayer);
-    layer_destroy(sunGraphLayer);
+//    layer_destroy(sunGraphLayer);
+    
+    bitmap_layer_destroy(icon_layer_black);
+    bitmap_layer_destroy(icon_layer_white);
 }
 
 static void init(void) {
