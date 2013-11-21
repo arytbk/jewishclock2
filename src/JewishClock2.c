@@ -487,7 +487,11 @@ void doEveryMinute() {
 
 // ************* Update watch with current data
 void updateWatch() {
+    time_t unixTime;
+    time(&unixTime);
+    currentPblTime = localtime(&unixTime);
     currentTime = (currentPblTime->tm_hour * 60) + currentPblTime->tm_min;
+    
     doEveryDay();
     doEveryHour();
     doEveryMinute();
@@ -497,6 +501,8 @@ void updateWatch() {
 // Handles the system minute-tick, calls appropriate functions above
 static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     currentPblTime = tick_time;
+    currentTime = (currentPblTime->tm_hour * 60) + currentPblTime->tm_min;
+    
     static int currentYDay = -1;
     static int currentHour = -1;
     
@@ -516,13 +522,11 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
 static void window_load(Window *window) {
     Layer *window_layer = window_get_root_layer(window);
 
-    // Try to load values from storage
-    
     // Default Values
     Jcity = "Unknow City, updating...";
     Jlatitude = Jlongitude = Jtimezone = Jdst = 0;
     
-    // Check if in storage
+    // Try to load values from storage
     if(persist_exists(STORAGE_LATITUDE)) {
         Jlatitude = persist_read_int(STORAGE_LATITUDE);
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored Latitude: %i", Jlatitude);
