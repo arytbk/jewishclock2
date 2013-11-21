@@ -184,6 +184,7 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
             break;
         }
     }
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "RECEIVED SYNC DATA lat=%i lon=%i, timezone=%i, dst=%i, city=%s", Jlatitude, Jlongitude, Jtimezone, Jdst, Jcity);
 }
 
 static void send_cmd(void) {
@@ -560,7 +561,7 @@ static void window_load(Window *window) {
     app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
         sync_tuple_changed_callback, sync_error_callback, NULL);
 
-    send_cmd();
+//    send_cmd();
     
     // Define fonts
     GFont tinyFont = fonts_get_system_font(FONT_KEY_GOTHIC_18);
@@ -647,6 +648,14 @@ static void window_load(Window *window) {
 }
 
 static void window_unload(Window *window) {
+    // Save values in storage
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "**** SAVING DATA IN STORAGE ****");
+    persist_write_int(STORAGE_LATITUDE, Jlatitude);
+    persist_write_int(STORAGE_LONGITUDE, Jlongitude);
+    persist_write_int(STORAGE_TIMEZONE, Jtimezone);
+    persist_write_int(STORAGE_DST, Jdst);
+    persist_write_string(STORAGE_CITY, Jcity);
+    
     app_sync_deinit(&sync);
 
     if (icon_white) {
@@ -705,14 +714,6 @@ static void init(void) {
 
 static void deinit(void) {
     window_destroy(window);
-    
-    // Save values in storage
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "**** SAVING DATA IN STORAGE ****");
-    persist_write_int(STORAGE_LATITUDE, Jlatitude);
-    persist_write_int(STORAGE_LONGITUDE, Jlongitude);
-    persist_write_int(STORAGE_TIMEZONE, Jtimezone);
-    persist_write_int(STORAGE_DST, Jdst);
-    persist_write_string(STORAGE_CITY, Jcity);
 }
 
 int main(void) {
