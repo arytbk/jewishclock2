@@ -54,7 +54,7 @@ function fetchWeather(latitude, longitude) {
                     var weatherResult = response.list[0];
                     temperature = Math.round(weatherResult.main.temp - 273.15);
                     icon = iconFromWeatherId(weatherResult.weather[0].id);
-                    city = weatherResult.name;
+                    city = weatherResult.name.substring(0,20);  // limit to 20 chars
                     console.log("temp = " + temperature);
                     console.log("City = " + city);
                     console.log("Icon = " + icon);
