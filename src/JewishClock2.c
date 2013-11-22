@@ -1,4 +1,5 @@
 #define USE_WEATHER
+#define UPDATE_MINUTES 15
 
 #include <pebble.h>
 #include "hebrewdate.h"
@@ -496,6 +497,7 @@ void updateWatch() {
 // ************* TICK HANDLER *****************
 // Handles the system minute-tick, calls appropriate functions above
 static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
+    static int updateCounter = UPDATE_MINUTES;
     currentPblTime = tick_time;
     currentTime = (currentPblTime->tm_hour * 60) + currentPblTime->tm_min;
     
@@ -510,9 +512,12 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     if(currentPblTime->tm_hour != currentHour) {  // Hour has changed, or app just started
         currentHour = currentPblTime->tm_hour;
         doEveryHour();
-        send_cmd(); // ask phone for updated data once per hour
     }
     doEveryMinute();
+    if(++updateCounter >= UPDATE_MINUTES) { // auto-update data from phone every few minutes
+        updateCounter=0;
+        send_cmd();
+    }
 }
 
 static void window_load(Window *window) {
