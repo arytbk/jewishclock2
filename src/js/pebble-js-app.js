@@ -7,20 +7,19 @@ function fetchTimezone(latitude, longitude) {
             if(req.status == 200) {
                 console.log(req.responseText);
                 response = JSON.parse(req.responseText);
-                console.log("PARSING Timezone *****");
-                var dst = parseInt(response.dstOffset);
+                var dst = parseInt(response.dstOffset)/60;   // minutes
                 var timezone = parseInt(response.rawOffset)/60;   // minutes
-                console.log(dst);
-                console.log(timezone);
+                var tz = timezone + dst*60; // combined time offset from utc
                 var bigLat = Math.round(parseFloat(latitude)*1000);
                 var bigLon = Math.round(parseFloat(longitude)*1000);
-                console.log(bigLat);
-                console.log(bigLon);
+                console.log("lat = " + bigLat);
+                console.log("lon = " + bigLon);
+                console.log("tz = " + tz);
                 Pebble.sendAppMessage({
-                                      "latitude":bigLat,
-                                      "longitude":bigLon,
-                                      "timezone":timezone,
-                                      "dst":dst});
+                                      "lat":bigLat,
+                                      "lon":bigLon,
+                                      "tz":tz    // time offset in minutes
+                                      });
             }
         }
     }
@@ -55,17 +54,21 @@ function fetchWeather(latitude, longitude) {
                     temperature = Math.round(weatherResult.main.temp - 273.15);
                     icon = iconFromWeatherId(weatherResult.weather[0].id);
                     city = weatherResult.name.substring(0,20);  // limit to 20 chars
+                    var bigLat = Math.round(parseFloat(latitude)*1000);
+                    var bigLon = Math.round(parseFloat(longitude)*1000);
+                    console.log("lat = " + bigLat);
+                    console.log("lon = " + bigLon);
                     console.log("temp = " + temperature);
-                    console.log("City = " + city);
-                    console.log("Icon = " + icon);
+                    console.log("city = " + city);
+                    console.log("icon = " + icon);
                     Pebble.sendAppMessage({
-//                        "temperature":(temperature + "\u00B0C"),
-                          "temperature":temperature + "°C",
+                        "lat":bigLat,
+                        "lon":bigLon,
+                        "temp":temperature,
                         "icon":icon,
                         "city":city
-                                          });
+                    });
                 }
-                
             } else {
                 console.log("Error");
             }
@@ -84,8 +87,8 @@ function locationSuccess(pos) {
 function locationError(err) {
   console.warn('location error (' + err.code + '): ' + err.message);
   Pebble.sendAppMessage({
-    "city":"Loc Unavailable",
-    "temperature":"N/A"
+    "city":"Unavailable",
+    "temp":0
   });
 }
 

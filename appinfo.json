@@ -10,13 +10,12 @@
     "watchface": true
   },
   "appKeys": {
-      "latitude": 0,
-      "longitude": 1,
-      "timezone": 2,
-      "dst": 3,
-      "temperature": 4,
-      "icon": 5,
-      "city": 6
+      "lat": 0,
+      "lon": 1,
+      "tz": 2,
+      "temp": 3,
+      "icon": 4,
+      "city": 5
   },
   "resources": {
       "media": [
