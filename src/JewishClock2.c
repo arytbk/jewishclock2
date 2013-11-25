@@ -211,7 +211,7 @@ static void app_message_init(void) {
     app_message_register_outbox_failed(out_failed_handler);
     // Init buffers
     const uint32_t inbound_size = app_message_inbox_size_maximum();
-    const uint32_t outbound_size = app_message_outbox_size_maximum();
+    const uint32_t outbound_size = 32;
     app_message_open(inbound_size, outbound_size);
 }
 
