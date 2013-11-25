@@ -14,8 +14,10 @@
       "lon": 1,
       "tz": 2,
       "temp": 3,
-      "icon": 4,
-      "city": 5
+      "min": 4,
+      "max": 5,
+      "icon": 6,
+      "city": 7
   },
   "resources": {
       "media": [
