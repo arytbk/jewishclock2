@@ -39,7 +39,7 @@ static TextLayer *sunsetLayer;         char sunsetString[]=        "00:00";
 GFont tinyFont, smallFont, mediumFont, mediumBoldFont, largeFont, moonFont;
 
 // Constants
-const int sunY = 104;
+const int sunY = 124;
 const int sunSize = 38;
 const int MINCHA_ALERT = 18;
 const int kBackgroundColor = GColorBlack;
@@ -522,7 +522,7 @@ static void window_load(Window *window) {
     initTextLayer(&hMonthLayer, 0, 25, 144, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
     
     //  Time
-    initTextLayer(&timeLayer, 0, 40, 144, 50, kTextColor, GColorClear, GTextAlignmentCenter, largeFont);
+    initTextLayer(&timeLayer, 0, 35, 144, 50, kTextColor, GColorClear, GTextAlignmentCenter, largeFont);
     
     // Line
     lineLayer = layer_create(layer_get_frame(window_layer));
@@ -530,9 +530,9 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, lineLayer);
     
     // Zman hours labels
-    initTextLayer(&zmanHourLabelLayer, 0, 100, 144, 15, kTextColor, GColorClear, GTextAlignmentLeft, smallFont);
+    initTextLayer(&zmanHourLabelLayer, 0, sunY+11, 144, 15, kTextColor, GColorClear, GTextAlignmentLeft, smallFont);
     text_layer_set_text(zmanHourLabelLayer, zmanHourLabelString);
-    initTextLayer(&nextHourLabelLayer, 0, 100, 144, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
+    initTextLayer(&nextHourLabelLayer, 0, sunY+11, 144, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
     text_layer_set_text(nextHourLabelLayer, nextHourLabelString);
     
     // Sun Graph
@@ -542,12 +542,12 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, sunGraphLayer);   // Show sun graph instead of weather icon
     
     // Optional Alert message
-    initTextLayer(&alertLayer, 0, 102, 144, 36, kBackgroundColor, kTextColor, GTextAlignmentCenter, mediumBoldFont);
+    initTextLayer(&alertLayer, 0, 100, 144, 36, kBackgroundColor, kTextColor, GTextAlignmentCenter, mediumBoldFont);
     layer_remove_from_parent(text_layer_get_layer(alertLayer));  // don't show now!
     
     // Zman hour number and Next zman hour
-    initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
-    initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
+    initTextLayer(&zmanHourLayer, 0, sunY+7, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
+    initTextLayer(&nextHourLayer, 0, sunY+7, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
     layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
     layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
     strcpy(zmanHourLabelString, "Sunrise");
@@ -561,8 +561,8 @@ static void window_load(Window *window) {
 //    layer_remove_from_parent(text_layer_get_layer(hatsotLayer));
     
     //  Sunrise and Sunset hour
-    initTextLayer(&sunriseLayer, 0, 110, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
-    initTextLayer(&sunsetLayer, 0, 110, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
+    initTextLayer(&sunriseLayer, 0, sunY+21, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
+    initTextLayer(&sunsetLayer, 0, sunY+21, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
     
     tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
     updateWatch();
@@ -582,8 +582,8 @@ static void window_unload(Window *window) {
     text_layer_destroy(monthLayer);
     text_layer_destroy(hMonthLayer);
     text_layer_destroy(timeLayer);
-    text_layer_destroy(zmanHourLabelLayer);
-    text_layer_destroy(nextHourLabelLayer);
+//    text_layer_destroy(zmanHourLabelLayer);
+//    text_layer_destroy(nextHourLabelLayer);
     text_layer_destroy(zmanHourLayer);
     text_layer_destroy(nextHourLayer);
     text_layer_destroy(alertLayer);
