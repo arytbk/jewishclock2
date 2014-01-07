@@ -1,6 +1,10 @@
-#define USE_WEATHER
-#define UPDATE_MINUTES 15
-
+//#ifndef RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49
+//#define RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49 ""
+//#endif
+//
+//#ifndef RESOURCE_ID_FONT_MOON_PHASES_SUBSET_30
+//#define RESOURCE_ID_FONT_MOON_PHASES_SUBSET_30 ""
+//#endif
 #include <pebble.h>
 #include "hebrewdate.h"
 #include "hdate_sun_time.h"
@@ -19,8 +23,8 @@ static TextLayer *monthLayer;          char monthString[]=         "May";
 static TextLayer *hMonthLayer;
 static TextLayer *timeLayer;           char timeString[]=          "00:00";
 static Layer *lineLayer;
-static TextLayer *zmanHourLabelLayer;  char zmanHourLabelString[]= "Hour #     ";
-static TextLayer *nextHourLabelLayer;  char nextHourLabelString[]= "Next In:   ";
+static TextLayer *zmanHourLabelLayer;   char zmanHourLabelString[]= "Hour #     ";
+static TextLayer *nextHourLabelLayer;   char nextHourLabelString[]= "Next In:   ";
 static Layer *sunGraphLayer;
 static TextLayer *currentZmanLayer;    char currentZmanString[]=   "Mincha Gedola";
 static TextLayer *EndOfZmanLayer;      char endOfZmanString[]=     "00:00";
@@ -29,15 +33,7 @@ static TextLayer *nextHourLayer;       char nextHourString[]=      "01:07:00";
 static TextLayer *alertLayer;          char alertString[]=    "SUNSET IN 000mn";
 static TextLayer *sunriseLayer;        char sunriseString[]=       "00:00";
 static TextLayer *sunsetLayer;         char sunsetString[]=        "00:00";
-static TextLayer *hatsotLayer;         char hatsotString[]=        "00:00";
-static TextLayer *temperature_layer;    char temperatureString[]=   "999 oC";
-static TextLayer *temp_min_layer;    char tempMinString[]=   "999 oC";
-static TextLayer *temp_max_layer;    char tempMaxString[]=   "999 oC";
-static TextLayer *citylayer;
-static BitmapLayer *icon_layer_white;
-static BitmapLayer *icon_layer_black;
-static GBitmap *icon_white = NULL;
-static GBitmap *icon_black = NULL;
+//static TextLayer *hatsotLayer;         char hatsotString[]=        "00:00";
 
 // Fonts
 GFont tinyFont, smallFont, mediumFont, mediumBoldFont, largeFont, moonFont;
@@ -52,9 +48,6 @@ const int kTextColor = GColorWhite;
 // Global variables
 int Jlatitude, Jlongitude;
 int Jtimezone;
-int Jtemperature, JtempMin, JtempMax;
-//int Jdst;
-char *Jcity;
 struct tm *currentPblTime  ;   // Keep current time so its available in all functions
 int hebrewDayNumber;        // Current hebrew day
 char *timeFormat;           // Format string to use for times (must change according to 24h or 12h option)
@@ -75,21 +68,6 @@ GPathInfo sun_path_info = {
     }
 };
 
-// Weather Icons
-static const uint32_t WEATHER_ICONS_WHITE[] = {
-    RESOURCE_ID_IMAGE_SUN_WHITE, //0
-    RESOURCE_ID_IMAGE_CLOUD_WHITE, //1
-    RESOURCE_ID_IMAGE_RAIN_WHITE, //2
-    RESOURCE_ID_IMAGE_SNOW_WHITE //3
-};
-
-static const uint32_t WEATHER_ICONS_BLACK[] = {
-    RESOURCE_ID_IMAGE_SUN_BLACK, //0
-    RESOURCE_ID_IMAGE_CLOUD_BLACK, //1
-    RESOURCE_ID_IMAGE_RAIN_BLACK, //2
-    RESOURCE_ID_IMAGE_SNOW_BLACK //3
-};
-
 // AppMessage and AppSync
 //static AppSync sync;
 static uint8_t sync_buffer[120];
@@ -98,19 +76,12 @@ enum JewishClockKey {
     LATITUDE_KEY = 0x0,
     LONGITUDE_KEY = 0x1,
     TIMEZONE_KEY = 0x2,
-    TEMPERATURE_KEY = 0x3,
-    TEMP_MIN_KEY = 0x4,
-    TEMP_MAX_KEY = 0x5,
-    ICON_KEY = 0x6,
-    CITY_KEY = 0x7
 };
 
 // Storage Keys
 const uint32_t STORAGE_LATITUDE = 0x1000;
 const uint32_t STORAGE_LONGITUDE = 0x1001;
 const uint32_t STORAGE_TIMEZONE = 0x1002;
-const uint32_t STORAGE_ICON = 0x1003;
-const uint32_t STORAGE_CITY = 0x1004;
 
 // Some function definitions
 void updateWatch();
@@ -143,56 +114,10 @@ static void in_received_handler(DictionaryIterator *iter, void *context) {
                 Jtimezone = newTz;
                 break;
             }
-            case ICON_KEY: {
-                if (icon_white) {
-                    gbitmap_destroy(icon_white);
-                }
-                if (icon_black) {
-                    gbitmap_destroy(icon_black);
-                }
-                int index = tuple->value->uint8;
-                if ((index<0) || (index>3)) {
-                    index = 1;
-                }
-                icon_white = gbitmap_create_with_resource(WEATHER_ICONS_WHITE[index]);
-                icon_black = gbitmap_create_with_resource(WEATHER_ICONS_BLACK[index]);
-                
-                // Use GCompOpOr to display the white portions of the image
-                bitmap_layer_set_bitmap(icon_layer_white, icon_white);
-                bitmap_layer_set_compositing_mode(icon_layer_white, GCompOpOr);
-                
-                // Use GCompOpClear to display the black portions of the image
-                bitmap_layer_set_bitmap(icon_layer_black, icon_black);
-                bitmap_layer_set_compositing_mode(icon_layer_black, GCompOpClear);
-                break;
-            }
-            case TEMPERATURE_KEY: {
-                Jtemperature = tuple->value->int32;
-                snprintf(temperatureString, 10, "%i °C", Jtemperature);
-                text_layer_set_text(temperature_layer, temperatureString);
-                break;
-            }
-            case TEMP_MIN_KEY: {
-                JtempMin = tuple->value->int32;
-                snprintf(tempMinString, 10, "%i °C", JtempMin);
-                text_layer_set_text(temp_min_layer, tempMinString);
-                break;
-            }
-            case TEMP_MAX_KEY: {
-                JtempMax = tuple->value->int32;
-                snprintf(tempMaxString, 10, "%i °C", JtempMax);
-                text_layer_set_text(temp_max_layer, tempMaxString);
-                break;
-            }
-            case CITY_KEY: {
-                strcpy(Jcity, tuple->value->cstring);
-                text_layer_set_text(citylayer, Jcity);
-                break;
-            }
         }
         tuple = dict_read_next(iter);
     }
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "RECEIVED DATA lat=%i lon=%i, tz=%i, temp=%i, min=%i, max=%i, city=%s", Jlatitude, Jlongitude, Jtimezone, Jtemperature, JtempMin, JtempMax, Jcity);
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "RECEIVED DATA lat=%i lon=%i, tz=%i", Jlatitude, Jlongitude, Jtimezone);
     updateWatch();
 }
 
@@ -214,86 +139,6 @@ static void app_message_init(void) {
     const uint32_t outbound_size = 32;
     app_message_open(inbound_size, outbound_size);
 }
-
-//static void sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
-//  APP_LOG(APP_LOG_LEVEL_DEBUG, "App Message Sync Error: %d", app_message_error);
-//}
-
-//static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
-//    int keyNumber = key;
-//    APP_LOG(APP_LOG_LEVEL_DEBUG,"KEY UPDATED: %i", keyNumber);
-//    if(key != CITY_KEY) {
-//        int value = new_tuple->value->int32;
-//        APP_LOG(APP_LOG_LEVEL_DEBUG, "WITH VALUE: %i", value);
-//    }
-//    switch (key) {
-//      case LATITUDE_KEY: {
-//          int newLat = new_tuple->value->int32;
-//          Jlatitude = newLat;
-//          updateWatch();
-//      break;
-//      }
-//      case LONGITUDE_KEY: {
-//          int newLon = new_tuple->value->int32;
-//          Jlongitude = newLon;
-//          updateWatch();
-//          break;
-//      }
-//      case TIMEZONE_KEY: {
-//          int newTz = new_tuple->value->int32;
-//          Jtimezone = newTz;
-//          updateWatch();
-//          break;
-//      }
-//        case ICON_KEY: {
-//            if (icon_white) {
-//                gbitmap_destroy(icon_white);
-//            }
-//            if (icon_black) {
-//                gbitmap_destroy(icon_black);
-//            }
-//            int index = new_tuple->value->uint8;
-//            if ((index<0) || (index>3)) {
-//                index = 1;
-//            }
-//            icon_white = gbitmap_create_with_resource(WEATHER_ICONS_WHITE[index]);
-//            icon_black = gbitmap_create_with_resource(WEATHER_ICONS_BLACK[index]);
-//            
-//            // Use GCompOpOr to display the white portions of the image
-//            bitmap_layer_set_bitmap(icon_layer_white, icon_white);
-//            bitmap_layer_set_compositing_mode(icon_layer_white, GCompOpOr);
-//            
-//            // Use GCompOpClear to display the black portions of the image
-//            bitmap_layer_set_bitmap(icon_layer_black, icon_black);
-//            bitmap_layer_set_compositing_mode(icon_layer_black, GCompOpClear);
-//            break;
-//        }
-//        case TEMPERATURE_KEY: {
-//            Jtemperature = new_tuple->value->int32;
-//            snprintf(temperatureString, 10, "%i °C", Jtemperature);
-//            text_layer_set_text(temperature_layer, temperatureString);
-//            break;
-//        }
-//        case TEMP_MIN_KEY: {
-//            JtempMin = new_tuple->value->int32;
-//            snprintf(tempMinString, 10, "%i °C", JtempMin);
-//            text_layer_set_text(temp_min_layer, tempMinString);
-//            break;
-//        }
-//        case TEMP_MAX_KEY: {
-//            JtempMax = new_tuple->value->int32;
-//            snprintf(tempMaxString, 10, "%i °C", JtempMax);
-//            text_layer_set_text(temp_max_layer, tempMaxString);
-//            break;
-//        }
-//        case CITY_KEY: {
-//            strcpy(Jcity, new_tuple->value->cstring);
-//            text_layer_set_text(citylayer, Jcity);
-//            break;
-//        }
-//    }
-//    APP_LOG(APP_LOG_LEVEL_DEBUG, "RECEIVED SYNC DATA lat=%i lon=%i, tz=%i, temp=%i, min=%i, max=%i, city=%s", Jlatitude, Jlongitude, Jtimezone, Jtemperature, JtempMin, JtempMax, Jcity);
-//}
 
 static void send_cmd(void) {    // send a dummy integer with value 1 to initiate data fetch from the .js
   Tuplet value = TupletInteger(1, 1);
@@ -321,10 +166,6 @@ void initTextLayer(TextLayer **theLayer, int x, int y, int w, int h, GColor text
 
 void adjustTimezone(int* time)  // time as minutes since midnight
 {
-//    if (Jdst != 0)
-//    {
-//        *time += 60;
-//    }
     *time += (Jtimezone);
     if (*time >= (24*60)) *time -= (24*60);
     if (*time < 0) *time += (24*60);
@@ -536,7 +377,7 @@ void updateMoonAndSun() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "LOCAL Sunrise=%i, LOCAL Sunset = %i", sunriseTime, sunsetTime);
     
     displayTime(sunriseTime, sunriseLayer, sunriseString, sizeof(sunriseString));
-    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
+//    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
     displayTime(sunsetTime, sunsetLayer, sunsetString, sizeof(sunsetString));
     
     // SUN GRAPHIC
@@ -621,7 +462,7 @@ static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
     if(currentPblTime->tm_hour != currentHour) {  // Hour has changed, or app just started
         currentHour = currentPblTime->tm_hour;
         doEveryHour();
-        send_cmd(); // fetch new data from phone once every hour
+//        send_cmd(); // fetch new data from phone once every hour
     }
     doEveryMinute();
 //    if(++updateCounter >= UPDATE_MINUTES) { // auto-update data from phone every few minutes
@@ -634,9 +475,7 @@ static void window_load(Window *window) {
     Layer *window_layer = window_get_root_layer(window);
 
     // Default Values
-    Jcity = "Unknow";
     Jlatitude = Jlongitude = Jtimezone = 0;
-    Jtemperature = JtempMax = JtempMin = 0;
     
     // Try to load values from storage
     if(persist_exists(STORAGE_LATITUDE)) {
@@ -651,33 +490,7 @@ static void window_load(Window *window) {
         Jtimezone = persist_read_int(STORAGE_TIMEZONE);
         APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored Timezone: %i", Jtimezone);
     }
-//    if(persist_exists(STORAGE_DST)) {
-//        Jdst = persist_read_int(STORAGE_DST);
-//        APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored DST: %i", Jdst);
-//    }
-    if(persist_exists(STORAGE_CITY)) {
-        persist_read_string(STORAGE_CITY, Jcity, 22);
-        APP_LOG(APP_LOG_LEVEL_DEBUG, "Restored City: %s", Jcity);
-    }
     
-//    Tuplet initial_values[] = {
-//      TupletInteger(LATITUDE_KEY, Jlatitude),
-//      TupletInteger(LONGITUDE_KEY, Jlongitude),
-//        TupletInteger(TIMEZONE_KEY, Jtimezone),
-////        TupletInteger(DST_KEY, Jdst),
-//        TupletInteger(TEMPERATURE_KEY, 0),
-//        TupletCString(CITY_KEY, Jcity),
-//        TupletInteger(ICON_KEY, (uint8_t)1),
-//    };
-
-//    const int inbound_size = 120;
-//    const int outbound_size = 120;
-//    app_message_open(inbound_size, outbound_size);
-    
-//    app_sync_init(&sync, sync_buffer, sizeof(sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
-//        sync_tuple_changed_callback, sync_error_callback, NULL);
-//    send_cmd();
-  
     app_message_init(); // initialises communication between this watchapp and the .js in the phone
     
     // Define fonts
@@ -708,10 +521,6 @@ static void window_load(Window *window) {
     // Hebrew Month
     initTextLayer(&hMonthLayer, 0, 25, 144, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
     
-    // City
-    initTextLayer(&citylayer, 0, 32, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
-    text_layer_set_text(citylayer, Jcity);
-    
     //  Time
     initTextLayer(&timeLayer, 0, 40, 144, 50, kTextColor, GColorClear, GTextAlignmentCenter, largeFont);
     
@@ -730,59 +539,30 @@ static void window_load(Window *window) {
     sunGraphLayer = layer_create(GRect(72-sunSize/2, sunY, sunSize+2, sunSize+2));
     layer_set_update_proc(sunGraphLayer, &sunGraphLayerUpdate);
     layer_set_clips(sunGraphLayer, true);
-#ifndef USE_WEATHER
     layer_add_child(window_layer, sunGraphLayer);   // Show sun graph instead of weather icon
-#endif
-    
-    // Weather Icon
-    icon_layer_white = bitmap_layer_create(GRect(32, 82, 80, 80));
-    icon_layer_black = bitmap_layer_create(GRect(32, 82, 80, 80));
-#ifdef USE_WEATHER
-    layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer_black));
-    layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer_white));
-#endif
     
     // Optional Alert message
     initTextLayer(&alertLayer, 0, 102, 144, 36, kBackgroundColor, kTextColor, GTextAlignmentCenter, mediumBoldFont);
     layer_remove_from_parent(text_layer_get_layer(alertLayer));  // don't show now!
     
     // Zman hour number and Next zman hour
-#ifdef USE_WEATHER
     initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
     layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
     layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
     strcpy(zmanHourLabelString, "Sunrise");
     strcpy(nextHourLabelString, "Sunset");
-#else
-    initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, mediumFont);
-    initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
-#endif
+
+//    initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, mediumFont);
+//    initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
     
     // Hatsot hour
-    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
-#ifdef USE_WEATHER
-    layer_remove_from_parent(text_layer_get_layer(hatsotLayer));
-#endif
-    
-    // Temperature
-    initTextLayer(&temperature_layer, 0, 138, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, mediumFont);
-    initTextLayer(&temp_min_layer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
-    initTextLayer(&temp_max_layer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
-#ifndef USE_WEATHER
-    layer_remove_from_parent(text_layer_get_layer(temperature_layer));
-    layer_remove_from_parent(text_layer_get_layer(temp_min_layer));
-    layer_remove_from_parent(text_layer_get_layer(temp_max_layer));
-#endif
+//    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
+//    layer_remove_from_parent(text_layer_get_layer(hatsotLayer));
     
     //  Sunrise and Sunset hour
-#ifdef USE_WEATHER
     initTextLayer(&sunriseLayer, 0, 110, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     initTextLayer(&sunsetLayer, 0, 110, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
-#else
-    initTextLayer(&sunriseLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
-    initTextLayer(&sunsetLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
-#endif
     
     tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
     updateWatch();
@@ -794,45 +574,24 @@ static void window_unload(Window *window) {
     persist_write_int(STORAGE_LATITUDE, Jlatitude);
     persist_write_int(STORAGE_LONGITUDE, Jlongitude);
     persist_write_int(STORAGE_TIMEZONE, Jtimezone);
-//    persist_write_int(STORAGE_DST, Jdst);
-    persist_write_string(STORAGE_CITY, Jcity);
-    
-//    app_sync_deinit(&sync);
     app_message_deregister_callbacks();
 
-    if (icon_white) {
-        gbitmap_destroy(icon_white);
-    }
-    if (icon_black) {
-        gbitmap_destroy(icon_black);
-    }
-    
     text_layer_destroy(dayLayer);
     text_layer_destroy(hDayLayer);
     text_layer_destroy(moonLayer);
     text_layer_destroy(monthLayer);
     text_layer_destroy(hMonthLayer);
-    text_layer_destroy(citylayer);
     text_layer_destroy(timeLayer);
     text_layer_destroy(zmanHourLabelLayer);
     text_layer_destroy(nextHourLabelLayer);
-//    text_layer_destroy(currentZmanLayer);
-//    text_layer_destroy(EndOfZmanLayer);
     text_layer_destroy(zmanHourLayer);
     text_layer_destroy(nextHourLayer);
     text_layer_destroy(alertLayer);
     text_layer_destroy(sunriseLayer);
     text_layer_destroy(sunsetLayer);
-    text_layer_destroy(hatsotLayer);
-    text_layer_destroy(temperature_layer);
-    text_layer_destroy(temp_min_layer);
-    text_layer_destroy(temp_max_layer);
-    
+//    text_layer_destroy(hatsotLayer);
     layer_destroy(lineLayer);
     layer_destroy(sunGraphLayer);
-    
-    bitmap_layer_destroy(icon_layer_black);
-    bitmap_layer_destroy(icon_layer_white);
 }
 
 static void init(void) {
