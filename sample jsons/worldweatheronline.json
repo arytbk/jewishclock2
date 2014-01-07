@@ -1,0 +1,27 @@
+{ "data":
+	{ "current_condition":
+		 [
+			  {"cloudcover": "50",
+				   "humidity": "72",
+				    "localObsDateTime": "2013-12-05 04:00 PM",
+					 "observation_time": "02:00 PM",
+					  "precipMM": "2.5",
+					   "pressure": "1013",
+					    "temp_C": "17",
+						 "temp_F": "63",
+						  "visibility": "10",
+						   "weatherCode": "116",
+						     "weatherDesc": [ {"value": "Partly Cloudy" } ],
+							   "weatherIconUrl": [ {"value": "http:\/\/cdn.worldweatheronline.net\/images\/wsymbols01_png_64\/wsymbol_0002_sunny_intervals.png" } ],
+							    "winddir16Point": "W",
+								 "winddirDegree": "260",
+								  "windspeedKmph": "15",
+								   "windspeedMiles": "9" 
+				}],
+	  "nearest_area":
+	   [
+		    { "areaName": [ {"value": "Ra`Ananah" } ],
+			  "country": [ {"value": "Israel" } ],
+			   "latitude": "32.181", "longitude": "34.867", "population": "0",  "region": [ {"value": "Hamerkaz" } ],  "weatherUrl": [ {"value": "http:\/\/www.worldweatheronline.com\/RaAnanah-weather\/HaMerkaz\/IL.aspx" } ] } ],  "request": [ {"query": "Lat 32.19 and Lon 34.86", "type": "LatLon" } ],  "weather": [ {"date": "2013-12-05", "precipMM": "11.0", "tempMaxC": "20", "tempMaxF": "68", "tempMinC": "15", "tempMinF": "59", "weatherCode": "356",  "weatherDesc": [ {"value": "Moderate or heavy rain shower" } ],  "weatherIconUrl": [ {"value": "http:\/\/cdn.worldweatheronline.net\/images\/wsymbols01_png_64\/wsymbol_0010_heavy_rain_showers.png" } ], "winddir16Point": "WSW", "winddirDegree": "255", "winddirection": "WSW", "windspeedKmph": "27", "windspeedMiles": "17" } ] }}
+[INFO    ] D JewishClock2.c:530 UTC Sunrise=266, UTC Sunset = 875
+[INFO    ] JS: Jewish Clock 2: { "data": { "current_condition": [ {"cloudcover": "50", "humidity": "72", "localObsDateTime": "2013-12-05 03:59 PM", "observation_time": "01:59 PM", "precipMM": "2.5", "pressure": "1013", "temp_C": "17", "temp_F": "63", "visibility": "10", "weatherCode": "116",  "weatherDesc": [ {"value": "Partly Cloudy" } ],  "weatherIconUrl": [ {"value": "http:\/\/cdn.worldweatheronline.net\/images\/wsymbols01_png_64\/wsymbol_0002_sunny_intervals.png" } ], "winddir16Point": "W", "winddirDegree": "260", "windspeedKmph": "15", "windspeedMiles": "9" } ],  "nearest_area": [ { "areaName": [ {"value": "Ra`Ananah" } ],  "country": [ {"value": "Israel" } ], "latitude": "32.181", "longitude": "34.867", "population": "0",  "region": [ {"value": "Hamerkaz" } ],  "weatherUrl": [ {"value": "http:\/\/www.worldweatheronline.com\/RaAnanah-weather\/HaMerkaz\/IL.aspx" } ] } ],  "request": [ {"query": "Lat 32.19 and Lon 34.86", "type": "LatLon" } ],  "weather": [ {"date": "2013-12-05", "precipMM": "11.0", "tempMaxC": "20", "tempMaxF": "68", "tempMinC": "15", "tempMinF": "59", "weatherCode": "356",  "weatherDesc": [ {"value": "Moderate or heavy rain shower" } ],  "weatherIconUrl": [ {"value": "http:\/\/cdn.worldweatheronline.net\/images\/wsymbols01_png_64\/wsymbol_0010_heavy_rain_showers.png" } ], "winddir16Point": "WSW", "winddirDegree": "255", "winddirection": "WSW", "windspeedKmph": "27", "windspeedMiles": "17" } ] }}

@@ -19,8 +19,8 @@ static TextLayer *monthLayer;          char monthString[]=         "May";
 static TextLayer *hMonthLayer;
 static TextLayer *timeLayer;           char timeString[]=          "00:00";
 static Layer *lineLayer;
-static TextLayer *zmanHourLabelLayer;  char zmanHourLabelString[]= "Hour #";
-static TextLayer *nextHourLabelLayer;  char nextHourLabelString[]= "Next In:";
+static TextLayer *zmanHourLabelLayer;  char zmanHourLabelString[]= "Hour #     ";
+static TextLayer *nextHourLabelLayer;  char nextHourLabelString[]= "Next In:   ";
 static Layer *sunGraphLayer;
 static TextLayer *currentZmanLayer;    char currentZmanString[]=   "Mincha Gedola";
 static TextLayer *EndOfZmanLayer;      char endOfZmanString[]=     "00:00";
@@ -606,7 +606,7 @@ void updateWatch() {
 // ************* TICK HANDLER *****************
 // Handles the system minute-tick, calls appropriate functions above
 static void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
-    static int updateCounter = UPDATE_MINUTES;
+//    static int updateCounter = UPDATE_MINUTES;
     currentPblTime = tick_time;
     currentTime = (currentPblTime->tm_hour * 60) + currentPblTime->tm_min;
     
@@ -750,6 +750,10 @@ static void window_load(Window *window) {
 #ifdef USE_WEATHER
     initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
+    layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
+    layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
+    strcpy(zmanHourLabelString, "Sunrise");
+    strcpy(nextHourLabelString, "Sunset");
 #else
     initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, mediumFont);
     initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
@@ -773,8 +777,8 @@ static void window_load(Window *window) {
     
     //  Sunrise and Sunset hour
 #ifdef USE_WEATHER
-    initTextLayer(&sunriseLayer, 0, 124, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
-    initTextLayer(&sunsetLayer, 0, 124, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
+    initTextLayer(&sunriseLayer, 0, 110, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
+    initTextLayer(&sunsetLayer, 0, 110, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
 #else
     initTextLayer(&sunriseLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     initTextLayer(&sunsetLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
