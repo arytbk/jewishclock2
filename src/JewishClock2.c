@@ -51,6 +51,8 @@ static int timeY;
 
 static int lineY;
 
+static int zmanHourY;
+
 static int sunY;
 static int sunSize;
 
@@ -511,8 +513,8 @@ static void window_load(Window *window) {
     app_message_init(); // initialises communication between this watchapp and the .js in the phone
     
     // Define fonts
-    tinyFont = fonts_get_system_font(FONT_KEY_GOTHIC_18);
-    smallFont = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+    tinyFont = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+    smallFont = fonts_get_system_font(FONT_KEY_GOTHIC_14);
     mediumFont = fonts_get_system_font(FONT_KEY_GOTHIC_24);
     mediumBoldFont = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
     largeFont = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_ROBOTO_BOLD_SUBSET_49));
@@ -533,10 +535,10 @@ static void window_load(Window *window) {
     
     
     // Gregorian Month
-    initTextLayer(&monthLayer, 0, monthY, screenWidth, 15, kTextColor, GColorClear, GTextAlignmentLeft, smallFont);
+    initTextLayer(&monthLayer, 0, monthY, screenWidth, 20, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     
     // Hebrew Month
-    initTextLayer(&hMonthLayer, 0, monthY, screenWidth, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
+    initTextLayer(&hMonthLayer, 0, monthY, screenWidth, 20, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
     
     //  Time
     initTextLayer(&timeLayer, 0, timeY, screenWidth, 50, kTextColor, GColorClear, GTextAlignmentCenter, largeFont);
@@ -565,15 +567,14 @@ static void window_load(Window *window) {
     layer_remove_from_parent(text_layer_get_layer(alertLayer));  // don't show now!
     
     // Zman hour number and Next zman hour
-    initTextLayer(&zmanHourLayer, 0, sunHourY, screenWidth, 25, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
-    initTextLayer(&nextHourLayer, 0, sunHourY, screenWidth, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
-    layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
-    layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
+    initTextLayer(&zmanHourLayer, screenMiddleX-26, zmanHourY-4, 30, 25, kTextColor, GColorClear, GTextAlignmentCenter, mediumFont);
+    initTextLayer(&nextHourLayer, screenMiddleX-4, zmanHourY+5, 30, 25, kTextColor, GColorClear, GTextAlignmentCenter, smallFont);
+//    layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
+//    layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
 
 
 //    initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, mediumFont);
 //    initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
-    
     // Hatsot hour
 //    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
 //    layer_remove_from_parent(text_layer_get_layer(hatsotLayer));
@@ -594,39 +595,44 @@ static void window_unload(Window *window) {
     persist_write_int(STORAGE_TIMEZONE, Jtimezone);
     app_message_deregister_callbacks();
 
-    text_layer_destroy(dayLayer);
-    text_layer_destroy(hDayLayer);
-    text_layer_destroy(moonLayer);
-    text_layer_destroy(monthLayer);
-    text_layer_destroy(hMonthLayer);
-    text_layer_destroy(timeLayer);
+//    text_layer_destroy(dayLayer);
+//    text_layer_destroy(hDayLayer);
+//    text_layer_destroy(moonLayer);
+//    text_layer_destroy(monthLayer);
+//    text_layer_destroy(hMonthLayer);
+//    text_layer_destroy(timeLayer);
 //    text_layer_destroy(zmanHourLabelLayer);
 //    text_layer_destroy(nextHourLabelLayer);
-    text_layer_destroy(zmanHourLayer);
-    text_layer_destroy(nextHourLayer);
-    text_layer_destroy(alertLayer);
-    text_layer_destroy(sunriseLayer);
-    text_layer_destroy(sunsetLayer);
+//    text_layer_destroy(zmanHourLayer);
+//    text_layer_destroy(nextHourLayer);
+//    text_layer_destroy(alertLayer);
+//    text_layer_destroy(sunriseLayer);
+//    text_layer_destroy(sunsetLayer);
 //    text_layer_destroy(hatsotLayer);
-    layer_destroy(lineLayer);
-    layer_destroy(sunGraphLayer);
+//    layer_destroy(lineLayer);
+//    layer_destroy(sunGraphLayer);
 }
 
 static void init(void) {
     // Positions
     dayY = 0;
-    monthY = 23;
+    monthY = 21;
     moonY = 7;
     
     timeY = 30;
     
     lineY = screenMiddleY;
     
-    sunY = screenMiddleY + 12;
+    sunY = lineY + 12;
     sunSize = 60;
+    
+    zmanHourY = sunY + sunSize/2;
+    
     sunLabelY = screenHeight - 27;
     sunHourY = screenHeight - 18;
+
     
+    // Other params
     MINCHA_ALERT = 18;
     kBackgroundColor = GColorBlack;
     kTextColor = GColorWhite;
