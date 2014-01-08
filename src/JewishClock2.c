@@ -616,7 +616,7 @@ static void window_unload(Window *window) {
 static void init(void) {
     // Positions
     dayY = 0;
-    monthY = 18;
+    monthY = 19;
     moonY = 7;
     
     timeY = 30;
