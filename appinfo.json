@@ -1,7 +1,7 @@
 {
   "uuid": "7eb9c3ff-107c-47dc-ab8c-6353dbc0d344",
-  "shortName": "JewishClock2",
-  "longName": "Jewish Clock 2",
+  "shortName": "JewishClock",
+  "longName": "Jewish Clock",
   "capabilities": [ "location" ],
   "companyName": "Ary Tebeka",
   "versionCode": 1,
