@@ -28,10 +28,11 @@ static TextLayer *sunsetLabelLayer;   char nextHourLabelString[]= "Next In:   ";
 static Layer *sunGraphLayer;
 static TextLayer *currentZmanLayer;    char currentZmanString[]=   "Mincha Gedola";
 static TextLayer *EndOfZmanLayer;      char endOfZmanString[]=     "00:00";
-static TextLayer *zmanHourLayer;       char zmanHourString[]=      "11";
+static TextLayer *zmanHourLayer;       char zmanHourString[]=      "011";
 static TextLayer *nextHourLayer;       char nextHourString[]=      "01:07:00";
 static TextLayer *alertLayer;          char alertString[]=    "SUNSET IN 000mn";
 static TextLayer *sunriseLayer;        char sunriseString[]=       "00:00";
+static TextLayer *hatsotLayer;         char hatsotString[]=       "00:00";
 static TextLayer *sunsetLayer;         char sunsetString[]=        "00:00";
 //static TextLayer *hatsotLayer;         char hatsotString[]=        "00:00";
 
@@ -292,7 +293,8 @@ void updateZmanim() {
     
     int nextHour = timeUntilNextHour / 60;
     int nextMinute = timeUntilNextHour % 60;
-    snprintf(zmanHourString, 2, "%i", zmanHourNumber);
+    snprintf(zmanHourString, 3, "%i", zmanHourNumber);
+    
     snprintf(nextHourString, 6, "%i:%02i",nextHour, nextMinute);
     text_layer_set_text(zmanHourLayer, zmanHourString);
     text_layer_set_text(nextHourLayer, nextHourString);
@@ -396,7 +398,7 @@ void updateMoonAndSun() {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "LOCAL Sunrise=%i, LOCAL Sunset = %i", sunriseTime, sunsetTime);
     
     displayTime(sunriseTime, sunriseLayer, sunriseString, sizeof(sunriseString));
-//    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
+    displayTime(hatsotTime, hatsotLayer, hatsotString, sizeof(hatsotString));
     displayTime(sunsetTime, sunsetLayer, sunsetString, sizeof(sunsetString));
     
     // SUN GRAPHIC
@@ -567,20 +569,12 @@ static void window_load(Window *window) {
     layer_remove_from_parent(text_layer_get_layer(alertLayer));  // don't show now!
     
     // Zman hour number and Next zman hour
-    initTextLayer(&zmanHourLayer, screenMiddleX-26, zmanHourY-4, 30, 25, kTextColor, GColorClear, GTextAlignmentCenter, mediumFont);
-    initTextLayer(&nextHourLayer, screenMiddleX-4, zmanHourY+5, 30, 25, kTextColor, GColorClear, GTextAlignmentCenter, smallFont);
-//    layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
-//    layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
+    initTextLayer(&zmanHourLayer, screenMiddleX-32, zmanHourY, 30, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
+    initTextLayer(&nextHourLayer, screenMiddleX-8, zmanHourY+3, 30, 25, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
 
-
-//    initTextLayer(&zmanHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentLeft, mediumFont);
-//    initTextLayer(&nextHourLayer, 0, 108, 144, 25, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
-    // Hatsot hour
-//    initTextLayer(&hatsotLayer, 0, 145, 144, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
-//    layer_remove_from_parent(text_layer_get_layer(hatsotLayer));
-    
     //  Sunrise and Sunset hour
     initTextLayer(&sunriseLayer, 0, sunHourY, screenWidth, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
+    initTextLayer(&hatsotLayer, 0, sunHourY, screenWidth, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
     initTextLayer(&sunsetLayer, 0, sunHourY, screenWidth, 30, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
     
     tick_timer_service_subscribe(MINUTE_UNIT, &handle_minute_tick);
@@ -623,8 +617,8 @@ static void init(void) {
     
     lineY = screenMiddleY+2;
     
-    sunY = lineY + 11;
-    sunSize = 60;
+    sunY = lineY + 7;
+    sunSize = 58;
     
     zmanHourY = sunY + sunSize/2;
     
