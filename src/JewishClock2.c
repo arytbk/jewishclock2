@@ -88,6 +88,21 @@ GPathInfo sun_path_info = {
     }
 };
 
+// Battery and phone
+GColor background_color = GColorWhite;
+GColor foreground_color = GColorBlack;
+GCompOp compositing_mode = GCompOpAssign;
+BitmapLayer *layer_batt_img;
+BitmapLayer *layer_conn_img;
+GBitmap *img_battery_full;
+GBitmap *img_battery_half;
+GBitmap *img_battery_low;
+GBitmap *img_battery_charge;
+GBitmap *img_bt_connect;
+GBitmap *img_bt_disconnect;
+TextLayer *layer_batt_text;
+int charge_percent = 0;
+
 // AppMessage and AppSync
 //static AppSync sync;
 static uint8_t sync_buffer[120];
@@ -225,6 +240,57 @@ void displayTime(int theTime, TextLayer *theLayer, char *theString, int maxSize)
     thePblTime.tm_min = theTime % 60;
     strftime(theString, maxSize, timeFormat, &thePblTime);
     text_layer_set_text(theLayer, theString);
+}
+
+void handle_battery(BatteryChargeState charge_state) {
+    static char battery_text[] = "+100% ";
+    
+    if (charge_state.is_charging) {
+        bitmap_layer_set_bitmap(layer_batt_img, img_battery_charge);
+        
+        snprintf(battery_text, sizeof(battery_text), "+%d%%", charge_state.charge_percent);
+    } else {
+        snprintf(battery_text, sizeof(battery_text), "%d%%", charge_state.charge_percent);
+        if (charge_state.charge_percent <= 20) {
+            bitmap_layer_set_bitmap(layer_batt_img, img_battery_low);
+        } else if (charge_state.charge_percent <= 50) {
+            bitmap_layer_set_bitmap(layer_batt_img, img_battery_half);
+        } else {
+            bitmap_layer_set_bitmap(layer_batt_img, img_battery_full);
+        }
+        
+        if (charge_state.charge_percent < charge_percent) {
+            if (charge_state.charge_percent==20){
+                vibes_double_pulse();
+            } else if(charge_state.charge_percent==10){
+                vibes_long_pulse();
+            }
+        }
+    }
+    charge_percent = charge_state.charge_percent;
+    
+    text_layer_set_text(layer_batt_text, battery_text);
+}
+
+void handle_bluetooth(bool connected) {
+    if (connected) {
+        bitmap_layer_set_bitmap(layer_conn_img, img_bt_connect);
+    } else {
+        bitmap_layer_set_bitmap(layer_conn_img, img_bt_disconnect);
+        vibes_long_pulse();
+    }
+}
+
+void handle_appfocus(bool in_focus){
+    if (in_focus) {
+        handle_bluetooth(bluetooth_connection_service_peek());
+        handle_battery(battery_state_service_peek());
+    }
+}
+
+void force_update(void) {
+    handle_battery(battery_state_service_peek());
+    handle_bluetooth(bluetooth_connection_service_peek());
 }
 
 // Draw line
@@ -588,6 +654,10 @@ static void window_unload(Window *window) {
     persist_write_int(STORAGE_LONGITUDE, Jlongitude);
     persist_write_int(STORAGE_TIMEZONE, Jtimezone);
     app_message_deregister_callbacks();
+    
+    battery_state_service_unsubscribe();
+    bluetooth_connection_service_unsubscribe();
+    app_focus_service_unsubscribe();
 
 //    text_layer_destroy(dayLayer);
 //    text_layer_destroy(hDayLayer);
@@ -605,6 +675,17 @@ static void window_unload(Window *window) {
 //    text_layer_destroy(hatsotLayer);
 //    layer_destroy(lineLayer);
 //    layer_destroy(sunGraphLayer);
+}
+
+void set_style(void) {
+    background_color  = GColorBlack;
+    foreground_color  = GColorWhite;
+    compositing_mode  = GCompOpAssignInverted;
+    
+    window_set_background_color(window, background_color);
+    text_layer_set_text_color(layer_batt_text, foreground_color);
+    bitmap_layer_set_compositing_mode(layer_batt_img, compositing_mode);
+    bitmap_layer_set_compositing_mode(layer_conn_img, compositing_mode);
 }
 
 static void init(void) {
@@ -649,6 +730,48 @@ static void init(void) {
     
     const bool animated = true;
     window_stack_push(window, animated);
+    
+    // ********* battery and blutooth
+    // resources
+    img_bt_connect     = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_CONNECT);
+    img_bt_disconnect  = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_DISCONNECT);
+    img_battery_full   = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY_FULL);
+    img_battery_half   = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY_HALF);
+    img_battery_low    = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY_LOW);
+    img_battery_charge = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BATTERY_CHARGE);
+    
+    // layers
+    layer_batt_text = text_layer_create(GRect(1,lineY+12,30,20));
+    layer_batt_img  = bitmap_layer_create(GRect(4, lineY+2, 16, 16));
+    layer_conn_img  = bitmap_layer_create(GRect(124, lineY+4, 20, 20));
+    
+    
+    text_layer_set_background_color(layer_batt_text, GColorClear);
+    text_layer_set_font(layer_batt_text, fonts_get_system_font(FONT_KEY_FONT_FALLBACK));
+    text_layer_set_text_alignment(layer_batt_text, GTextAlignmentCenter);
+    
+    bitmap_layer_set_bitmap(layer_batt_img, img_battery_full);
+    bitmap_layer_set_bitmap(layer_conn_img, img_bt_connect);
+    
+    // composing layers
+    Layer *window_layer = window_get_root_layer(window);
+    
+    layer_add_child(window_layer, bitmap_layer_get_layer(layer_batt_img));
+    layer_add_child(window_layer, bitmap_layer_get_layer(layer_conn_img));
+    layer_add_child(window_layer, text_layer_get_layer(layer_batt_text));
+    
+    // style
+    set_style();
+    
+    // handlers
+    battery_state_service_subscribe(&handle_battery);
+    bluetooth_connection_service_subscribe(&handle_bluetooth);
+    app_focus_service_subscribe(&handle_appfocus);
+    tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
+    
+    // draw first frame
+    force_update();
+    
 }
 
 static void deinit(void) {

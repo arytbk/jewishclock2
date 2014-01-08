@@ -23,6 +23,36 @@
             "file": "images/menu_icon.png"
             },
             {
+            "type": "png",
+            "name": "IMAGE_DISCONNECT",
+            "file": "images/disconnect.png"
+            },
+            {
+            "type": "png",
+            "name": "IMAGE_CONNECT",
+            "file": "images/bluetooth.png"
+            },
+            {
+            "type": "png",
+            "name": "IMAGE_BATTERY_FULL",
+            "file": "images/battery.png"
+            },
+            {
+            "type": "png",
+            "name": "IMAGE_BATTERY_HALF",
+            "file": "images/battery-half.png"
+            },
+            {
+            "type": "png",
+            "name": "IMAGE_BATTERY_LOW",
+            "file": "images/battery-low.png"
+            },
+            {
+            "type": "png",
+            "name": "IMAGE_BATTERY_CHARGE",
+            "file": "images/battery-charge.png"
+            },
+            {
             "characterRegex": "[A-Za-z0]",
             "name": "FONT_MOON_PHASES_SUBSET_30",
             "type": "font",
