@@ -525,10 +525,10 @@ static void window_load(Window *window) {
     // ******************************************
     
     // Gregorian Day
-    initTextLayer(&dayLayer, 0, 0, screenWidth, 25, kTextColor, GColorClear, GTextAlignmentLeft, mediumFont);
+    initTextLayer(&dayLayer, 0, 0, screenWidth, 24, kTextColor, GColorClear, GTextAlignmentLeft, mediumFont);
     
     // Hebrew Day
-    initTextLayer(&hDayLayer, 0, 0, screenWidth, 25, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
+    initTextLayer(&hDayLayer, 0, 0, screenWidth, 24, kTextColor, GColorClear, GTextAlignmentRight, mediumFont);
     
     //  Moon phase
     initTextLayer(&moonLayer, screenMiddleX-16, moonY, 32, 32, kTextColor, GColorClear, GTextAlignmentCenter, moonFont);
@@ -616,20 +616,20 @@ static void window_unload(Window *window) {
 static void init(void) {
     // Positions
     dayY = 0;
-    monthY = 21;
+    monthY = 18;
     moonY = 7;
     
     timeY = 30;
     
-    lineY = screenMiddleY;
+    lineY = screenMiddleY+2;
     
-    sunY = lineY + 12;
+    sunY = lineY + 11;
     sunSize = 60;
     
     zmanHourY = sunY + sunSize/2;
     
-    sunLabelY = screenHeight - 27;
-    sunHourY = screenHeight - 18;
+    sunLabelY = screenHeight - 28;
+    sunHourY = screenHeight - 19;
 
     
     // Other params
