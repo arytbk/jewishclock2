@@ -5,7 +5,7 @@
   "capabilities": [ "location" ],
   "companyName": "Ary Tebeka",
   "versionCode": 1,
-  "versionLabel": "1.0.0",
+  "versionLabel": "1.0.1",
   "watchapp": {
     "watchface": true
   },
