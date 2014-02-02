@@ -55,7 +55,7 @@ static int lineY;
 static int zmanHourY;
 
 static int sunY;
-static int sunSize;
+//static int sunSize;
 
 static int sunLabelY;
 static int sunHourY;
@@ -75,18 +75,32 @@ int currentTime, sunriseTime, sunsetTime, hatsotTime, timeUntilNextHour;    // Z
 int zmanHourNumber;         // current zman hour number
 float zmanHourDuration;     // zman hour duration
 
+static const int sunSize = 58;
+static const int sunRadius = 27;
 // Sun path
 GPath *sun_path;
 GPathInfo sun_path_info = {
-    5,
+    6,
     (GPoint []) {
         {0, 0},
-        {-73, +84}, //replaced by sunrise angle
-        {-73, +84}, //bottom left
-        {+73, +84}, //bottom right
-        {+73, +84}, //replaced by sunset angle
+        {27, 10}, //replaced by sunrise angle
+        {27, 27}, //bottom right
+        {-27, 27}, //bottom left
+        {-27, 10}, //replaced by sunset angle
+        {0, 0}
     }
 };
+
+//GPathInfo sun_path_info = {
+//    5,
+//    (GPoint []) {
+//        {0, 0},
+//        {-73, +84}, //replaced by sunrise angle
+//        {-73, +84}, //bottom left
+//        {+73, +84}, //bottom right
+//        {+73, +84}, //replaced by sunset angle
+//    }
+//};
 
 // Battery and phone
 GColor background_color = GColorWhite;
@@ -306,34 +320,50 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
 {
     (void)me;
     
+    graphics_context_set_compositing_mode(ctx, GCompOpAssign);
+    
     // Fill layer with black
     graphics_context_set_fill_color(ctx, GColorBlack);
-    graphics_fill_rect(ctx, GRect(0, 0, sunSize+2, sunSize+2), 0, 0);
+    graphics_fill_rect(ctx, GRect(0, 0, sunRadius, sunRadius), 0, 0);
     
-    GPoint sunCenter = GPoint(sunSize/2, sunSize/2);
-    // Draw white filled circle
+    GPoint sunCenter = GPoint(sunRadius+1, sunRadius+1);
+    
+    // Fill white filled circle
     graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_fill_circle(ctx, sunCenter, sunSize/2);
+//    graphics_fill_circle(ctx, sunCenter, sunRadius);
     
     // Must fill night part with black
-    graphics_context_set_fill_color(ctx, GColorBlack);
+    if(sun_path != NULL) {
+        gpath_destroy(sun_path);
+        sun_path=NULL;
+    }
     sun_path = gpath_create(&sun_path_info);
+//    APP_LOG(APP_LOG_LEVEL_DEBUG,"SUN_PATH: %i", (int)sun_path->num_points);
+//    for (int k=0; k<(int)(sun_path->num_points); k++) {
+//        GPoint p = sun_path->points[k];
+//        APP_LOG(APP_LOG_LEVEL_DEBUG, "POINT[%i] = (%i,%i)", k, p.x, p.y);
+//    }
     gpath_move_to(sun_path, sunCenter);
-    gpath_draw_filled(ctx, sun_path);
+    graphics_context_set_fill_color(ctx, GColorWhite);
+    graphics_context_set_stroke_color(ctx, GColorWhite);
+    gpath_draw_filled(ctx, sun_path);     // ******** BUG in 2.0 firmware, wil not fill the path!
+    
+//    graphics_context_set_stroke_color(ctx, GColorWhite);
+//    gpath_draw_outline(ctx, sun_path);
     
     // Draw white circle
     graphics_context_set_stroke_color(ctx, GColorWhite);
-    graphics_draw_circle(ctx, sunCenter, sunSize/2);
+    graphics_draw_circle(ctx, sunCenter, sunRadius);
     
     // Draw hand/needle at current time
     // Black if day, white if night
-    if((currentTime >= sunriseTime) && (currentTime <= sunsetTime)) { // Day
-        graphics_context_set_stroke_color(ctx, GColorBlack);
-    } else {  // night
+//    if((currentTime >= sunriseTime) && (currentTime <= sunsetTime)) { // Day
+//        graphics_context_set_stroke_color(ctx, GColorBlack);
+//    } else {  // night
         graphics_context_set_stroke_color(ctx, GColorWhite);
-    }
+//    }
     float angle = (18.0 - minutes2Hours(currentTime))/24.0 * 2.0 * M_PI;
-    GPoint toPoint = GPoint(sunCenter.x + my_cos(angle)*sunSize/2, sunCenter.y - my_sin(angle)*sunSize/2);
+    GPoint toPoint = GPoint(sunCenter.x + my_cos(angle)*sunRadius, sunCenter.y - my_sin(angle)*sunRadius);
     graphics_draw_line(ctx, sunCenter, toPoint);
 }
 
@@ -468,12 +498,17 @@ void updateMoonAndSun() {
     displayTime(sunsetTime, sunsetLayer, sunsetString, sizeof(sunsetString));
     
     // SUN GRAPHIC
-    float rise2 = minutes2Hours(sunriseTime)+12.0f;
-    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
-    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
-    float set2 =  minutes2Hours(sunsetTime)+12.0f;
-    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
-    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
+    // ********************** BUG in calculation, must fix once gpath_draw_filled is fixed ********************************************
+    float rise2 = minutes2Hours(sunriseTime);
+    sun_path_info.points[1].y = (int16_t)(my_sin((rise2-6.0)/6.0 * M_PI * 2) * sunRadius);
+//    float rise2 = minutes2Hours(sunriseTime)+12.0f;
+//    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
+//    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
+    float set2 =  minutes2Hours(sunsetTime);
+    sun_path_info.points[4].y = (int16_t)(my_sin((18.0-set2)/6.0 * M_PI * 2) * sunRadius);
+//    float set2 =  minutes2Hours(sunsetTime)+12.0f;
+//    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
+//    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
 }
 
 
@@ -625,7 +660,7 @@ static void window_load(Window *window) {
     strcpy(nextHourLabelString, "Sunset");
     
     // Sun Graph
-    sunGraphLayer = layer_create(GRect(72-sunSize/2, sunY, sunSize+2, sunSize+2));
+    sunGraphLayer = layer_create(GRect(72-sunRadius-1, sunY-1, sunSize+2, sunSize+2));
     layer_set_update_proc(sunGraphLayer, &sunGraphLayerUpdate);
     layer_set_clips(sunGraphLayer, true);
     layer_add_child(window_layer, sunGraphLayer);   // Show sun graph instead of weather icon
@@ -699,9 +734,8 @@ static void init(void) {
     lineY = screenMiddleY+2;
     
     sunY = lineY + 7;
-    sunSize = 58;
     
-    zmanHourY = sunY + sunSize/2;
+    zmanHourY = sunY + sunRadius;
     
     sunLabelY = screenHeight - 28;
     sunHourY = screenHeight - 19;
