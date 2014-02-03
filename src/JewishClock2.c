@@ -13,6 +13,8 @@
 
 static Window *window;  // Main Window
 
+const bool withoutSunGraph = false;
+
 // ******************************************
 // Layers - top to bottom, left to right
 // ******************************************
@@ -79,28 +81,28 @@ static const int sunSize = 58;
 static const int sunRadius = 27;
 // Sun path
 GPath *sun_path;
-GPathInfo sun_path_info = {
-    6,
-    (GPoint []) {
-        {0, 0},
-        {27, 10}, //replaced by sunrise angle
-        {27, 27}, //bottom right
-        {-27, 27}, //bottom left
-        {-27, 10}, //replaced by sunset angle
-        {0, 0}
-    }
-};
-
 //GPathInfo sun_path_info = {
-//    5,
+//    6,
 //    (GPoint []) {
 //        {0, 0},
-//        {-73, +84}, //replaced by sunrise angle
-//        {-73, +84}, //bottom left
-//        {+73, +84}, //bottom right
-//        {+73, +84}, //replaced by sunset angle
+//        {27, 10}, //replaced by sunrise angle
+//        {27, 27}, //bottom right
+//        {-27, 27}, //bottom left
+//        {-27, 10}, //replaced by sunset angle
+//        {0, 0}
 //    }
 //};
+
+GPathInfo sun_path_info = {
+    5,
+    (GPoint []) {
+        {0, 0},
+        {-73, +84}, //replaced by sunrise angle
+        {-73, +84}, //bottom left
+        {+73, +84}, //bottom right
+        {+73, +84}, //replaced by sunset angle
+    }
+};
 
 // Battery and phone
 GColor background_color = GColorWhite;
@@ -330,7 +332,7 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
     
     // Fill white filled circle
     graphics_context_set_fill_color(ctx, GColorWhite);
-//    graphics_fill_circle(ctx, sunCenter, sunRadius);
+    graphics_fill_circle(ctx, sunCenter, sunRadius);
     
     // Must fill night part with black
     if(sun_path != NULL) {
@@ -344,11 +346,9 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
 //        APP_LOG(APP_LOG_LEVEL_DEBUG, "POINT[%i] = (%i,%i)", k, p.x, p.y);
 //    }
     gpath_move_to(sun_path, sunCenter);
-    graphics_context_set_fill_color(ctx, GColorWhite);
-    graphics_context_set_stroke_color(ctx, GColorWhite);
-    gpath_draw_filled(ctx, sun_path);     // ******** BUG in 2.0 firmware, wil not fill the path!
-    
-//    graphics_context_set_stroke_color(ctx, GColorWhite);
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    gpath_draw_filled(ctx, sun_path);     // ******** BUG in 2.0 firmware, wil not fill the path! *********************
+//    graphics_context_set_stroke_color(ctx, GColorBlack);
 //    gpath_draw_outline(ctx, sun_path);
     
     // Draw white circle
@@ -357,11 +357,11 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
     
     // Draw hand/needle at current time
     // Black if day, white if night
-//    if((currentTime >= sunriseTime) && (currentTime <= sunsetTime)) { // Day
-//        graphics_context_set_stroke_color(ctx, GColorBlack);
-//    } else {  // night
+    if((currentTime >= sunriseTime) && (currentTime <= sunsetTime)) { // Day
+        graphics_context_set_stroke_color(ctx, GColorBlack);
+    } else {  // night
         graphics_context_set_stroke_color(ctx, GColorWhite);
-//    }
+    }
     float angle = (18.0 - minutes2Hours(currentTime))/24.0 * 2.0 * M_PI;
     GPoint toPoint = GPoint(sunCenter.x + my_cos(angle)*sunRadius, sunCenter.y - my_sin(angle)*sunRadius);
     graphics_draw_line(ctx, sunCenter, toPoint);
@@ -498,17 +498,16 @@ void updateMoonAndSun() {
     displayTime(sunsetTime, sunsetLayer, sunsetString, sizeof(sunsetString));
     
     // SUN GRAPHIC
-    // ********************** BUG in calculation, must fix once gpath_draw_filled is fixed ********************************************
-    float rise2 = minutes2Hours(sunriseTime);
-    sun_path_info.points[1].y = (int16_t)(my_sin((rise2-6.0)/6.0 * M_PI * 2) * sunRadius);
-//    float rise2 = minutes2Hours(sunriseTime)+12.0f;
-//    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
-//    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
-    float set2 =  minutes2Hours(sunsetTime);
-    sun_path_info.points[4].y = (int16_t)(my_sin((18.0-set2)/6.0 * M_PI * 2) * sunRadius);
-//    float set2 =  minutes2Hours(sunsetTime)+12.0f;
-//    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
-//    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
+//    float rise2 = minutes2Hours(sunriseTime);
+//    sun_path_info.points[1].y = (int16_t)(my_sin((rise2-6.0)/6.0 * M_PI * 2) * sunRadius);
+    float rise2 = minutes2Hours(sunriseTime)+12.0f;
+    sun_path_info.points[1].x = (int16_t)(my_sin(rise2/24 * M_PI * 2) * 120);
+    sun_path_info.points[1].y = -(int16_t)(my_cos(rise2/24 * M_PI * 2) * 120);
+//    float set2 =  minutes2Hours(sunsetTime);
+//    sun_path_info.points[4].y = (int16_t)(my_sin((18.0-set2)/6.0 * M_PI * 2) * sunRadius);
+    float set2 =  minutes2Hours(sunsetTime)+12.0f;
+    sun_path_info.points[4].x = (int16_t)(my_sin(set2/24 * M_PI * 2) * 120);
+    sun_path_info.points[4].y = -(int16_t)(my_cos(set2/24 * M_PI * 2) * 120);
 }
 
 
@@ -660,19 +659,25 @@ static void window_load(Window *window) {
     strcpy(nextHourLabelString, "Sunset");
     
     // Sun Graph
-    sunGraphLayer = layer_create(GRect(72-sunRadius-1, sunY-1, sunSize+2, sunSize+2));
+    sunGraphLayer = layer_create(GRect(72-sunRadius, sunY, sunSize, sunSize));
     layer_set_update_proc(sunGraphLayer, &sunGraphLayerUpdate);
     layer_set_clips(sunGraphLayer, true);
-    layer_add_child(window_layer, sunGraphLayer);   // Show sun graph instead of weather icon
+    if(!withoutSunGraph) {
+        layer_add_child(window_layer, sunGraphLayer);
+    }
     
     // Alert message
     initTextLayer(&alertLayer, 0, lineY + 2, screenWidth, 36, kBackgroundColor, kTextColor, GTextAlignmentCenter, mediumBoldFont);
     layer_remove_from_parent(text_layer_get_layer(alertLayer));  // don't show now!
     
     // Zman hour number and Next zman hour
+    initTextLayer(&nextHourLayer, screenMiddleX-20, zmanHourY+3, 44, 17, kTextColor, GColorBlack, GTextAlignmentRight, smallFont);
     initTextLayer(&zmanHourLayer, screenMiddleX-32, zmanHourY, 30, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
-    initTextLayer(&nextHourLayer, screenMiddleX-8, zmanHourY+3, 30, 25, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
-
+    if(withoutSunGraph) {
+        layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
+        layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
+    }
+    
     //  Sunrise and Sunset hour
     initTextLayer(&sunriseLayer, 0, sunHourY, screenWidth, 30, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     initTextLayer(&hatsotLayer, 0, sunHourY, screenWidth, 30, kTextColor, GColorClear, GTextAlignmentCenter, tinyFont);
@@ -730,16 +735,17 @@ static void init(void) {
     moonY = 7;
     
     timeY = 30;
-    
     lineY = screenMiddleY+2;
-    
     sunY = lineY + 7;
-    
     zmanHourY = sunY + sunRadius;
-    
     sunLabelY = screenHeight - 28;
     sunHourY = screenHeight - 19;
 
+    if(withoutSunGraph) {
+        int offset = 18;
+        timeY+=offset;
+        lineY+=offset;
+    }
     
     // Other params
     MINCHA_ALERT = 18;

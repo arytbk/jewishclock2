@@ -12,3 +12,4 @@ build/*
 profile
 .gitignore
 .gitattributes
+.lock-waf_darwin_build
