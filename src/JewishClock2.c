@@ -94,13 +94,14 @@ GPath *sun_path;
 //};
 
 GPathInfo sun_path_info = {
-    5,
+    6,
     (GPoint []) {
         {0, 0},
         {-73, +84}, //replaced by sunrise angle
         {-73, +84}, //bottom left
         {+73, +84}, //bottom right
         {+73, +84}, //replaced by sunset angle
+        { 0, 0}
     }
 };
 
@@ -345,11 +346,25 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
 //        GPoint p = sun_path->points[k];
 //        APP_LOG(APP_LOG_LEVEL_DEBUG, "POINT[%i] = (%i,%i)", k, p.x, p.y);
 //    }
-    gpath_move_to(sun_path, sunCenter);
-    graphics_context_set_fill_color(ctx, GColorBlack);
-    gpath_draw_filled(ctx, sun_path);     // ******** BUG in 2.0 firmware, wil not fill the path! *********************
-//    graphics_context_set_stroke_color(ctx, GColorBlack);
+
+//    gpath_move_to(sun_path, sunCenter);
+//    graphics_context_set_fill_color(ctx, GColorBlack);
+//    gpath_draw_filled(ctx, sun_path);     // ******** BUG in 2.0 firmware, wil not fill the path! *********************
+//    graphics_context_set_stroke_color(ctx, GColorWhite);
 //    gpath_draw_outline(ctx, sun_path);
+
+//    GPoint p1 = sun_path->points[1];
+//    GPoint p2 = sun_path->points[4];
+//    int x1 = p1.x;
+//    int x2 = p2.x;
+//    GPoint pp = GPoint(x1, sun_path->points[1].y);
+//    graphics_context_set_stroke_color(ctx, GColorBlack);
+//    graphics_draw_line(ctx, sunCenter, p1 );
+//    graphics_draw_line(ctx, sunCenter, p2 );
+//    for (int x=x1; x<x2; x++) {
+//        pp.x = x;
+//        graphics_draw_line(ctx, sunCenter, pp );
+//    }
     
     // Draw white circle
     graphics_context_set_stroke_color(ctx, GColorWhite);
@@ -364,7 +379,7 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
     }
     float angle = (18.0 - minutes2Hours(currentTime))/24.0 * 2.0 * M_PI;
     GPoint toPoint = GPoint(sunCenter.x + my_cos(angle)*sunRadius, sunCenter.y - my_sin(angle)*sunRadius);
-    graphics_draw_line(ctx, sunCenter, toPoint);
+//    graphics_draw_line(ctx, sunCenter, toPoint);
 }
 
 // Update time
@@ -637,10 +652,10 @@ static void window_load(Window *window) {
     
     
     // Gregorian Month
-    initTextLayer(&monthLayer, 0, monthY, screenWidth, 20, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
+    initTextLayer(&monthLayer, 0, monthY, screenWidth, 24, kTextColor, GColorClear, GTextAlignmentLeft, tinyFont);
     
     // Hebrew Month
-    initTextLayer(&hMonthLayer, 0, monthY, screenWidth, 20, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
+    initTextLayer(&hMonthLayer, 0, monthY, screenWidth, 24, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
     
     //  Time
     initTextLayer(&timeLayer, 0, timeY, screenWidth, 50, kTextColor, GColorClear, GTextAlignmentCenter, largeFont);
@@ -651,9 +666,9 @@ static void window_load(Window *window) {
     layer_add_child(window_layer, lineLayer);
     
     // Sunrise/set labels
-    initTextLayer(&sunriseLabelLayer, 0, sunLabelY, screenWidth, 15, kTextColor, GColorClear, GTextAlignmentLeft, smallFont);
+    initTextLayer(&sunriseLabelLayer, 0, sunLabelY-1, screenWidth, 15, kTextColor, GColorClear, GTextAlignmentLeft, smallFont);
     text_layer_set_text(sunriseLabelLayer, zmanHourLabelString);
-    initTextLayer(&sunsetLabelLayer, 0, sunLabelY, screenWidth, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
+    initTextLayer(&sunsetLabelLayer, 0, sunLabelY-1, screenWidth, 15, kTextColor, GColorClear, GTextAlignmentRight, smallFont);
     text_layer_set_text(sunsetLabelLayer, nextHourLabelString);
     strcpy(zmanHourLabelString, "Sunrise");
     strcpy(nextHourLabelString, "Sunset");
@@ -737,7 +752,9 @@ static void init(void) {
     timeY = 30;
     lineY = screenMiddleY+2;
     sunY = lineY + 7;
+    
     zmanHourY = sunY + sunRadius;
+    
     sunLabelY = screenHeight - 28;
     sunHourY = screenHeight - 19;
 
