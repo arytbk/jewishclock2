@@ -347,11 +347,11 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
 //        APP_LOG(APP_LOG_LEVEL_DEBUG, "POINT[%i] = (%i,%i)", k, p.x, p.y);
 //    }
 
-//    gpath_move_to(sun_path, sunCenter);
-//    graphics_context_set_fill_color(ctx, GColorBlack);
-//    gpath_draw_filled(ctx, sun_path);     // ******** BUG in 2.0 firmware, wil not fill the path! *********************
-//    graphics_context_set_stroke_color(ctx, GColorWhite);
-//    gpath_draw_outline(ctx, sun_path);
+    gpath_move_to(sun_path, sunCenter);
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    gpath_draw_filled(ctx, sun_path);     // ******** BUG in 2.0 firmware, wil not fill the path! *********************
+    graphics_context_set_stroke_color(ctx, GColorWhite);
+    gpath_draw_outline(ctx, sun_path);
 
 //    GPoint p1 = sun_path->points[1];
 //    GPoint p2 = sun_path->points[4];
@@ -379,7 +379,7 @@ void sunGraphLayerUpdate(Layer *me, GContext* ctx)
     }
     float angle = (18.0 - minutes2Hours(currentTime))/24.0 * 2.0 * M_PI;
     GPoint toPoint = GPoint(sunCenter.x + my_cos(angle)*sunRadius, sunCenter.y - my_sin(angle)*sunRadius);
-//    graphics_draw_line(ctx, sunCenter, toPoint);
+    graphics_draw_line(ctx, sunCenter, toPoint);
 }
 
 // Update time
@@ -688,7 +688,9 @@ static void window_load(Window *window) {
     // Zman hour number and Next zman hour
     initTextLayer(&nextHourLayer, screenMiddleX-20, zmanHourY+3, 44, 17, kTextColor, GColorBlack, GTextAlignmentRight, smallFont);
     initTextLayer(&zmanHourLayer, screenMiddleX-32, zmanHourY, 30, 25, kTextColor, GColorClear, GTextAlignmentRight, tinyFont);
-    if(withoutSunGraph) {
+    
+    // **** Test without zman hours
+    if(1 || withoutSunGraph) {
         layer_remove_from_parent(text_layer_get_layer(nextHourLayer));
         layer_remove_from_parent(text_layer_get_layer(zmanHourLayer));
     }
