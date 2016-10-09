@@ -10,29 +10,29 @@
 	<string>JewishClock2</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>F38B7871-92C6-4FE0-A391-5741A331F702</key>
-		<string>ssh://github.com/arytbk/jewishclock2.git</string>
+		<key>84F5DDE7BA6CC6E203BF80D1D0286CE1368DC59E</key>
+		<string>github.com:arytbk/jewishclock2.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
-	<string>xcode/JewishClock2.xcodeproj/project.xcworkspace</string>
+	<string>xcode/JewishClock2.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>F38B7871-92C6-4FE0-A391-5741A331F702</key>
+		<key>84F5DDE7BA6CC6E203BF80D1D0286CE1368DC59E</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>ssh://github.com/arytbk/jewishclock2.git</string>
+	<string>github.com:arytbk/jewishclock2.git</string>
 	<key>IDESourceControlProjectVersion</key>
-	<integer>110</integer>
+	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>F38B7871-92C6-4FE0-A391-5741A331F702</string>
+	<string>84F5DDE7BA6CC6E203BF80D1D0286CE1368DC59E</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>F38B7871-92C6-4FE0-A391-5741A331F702</string>
+			<string>84F5DDE7BA6CC6E203BF80D1D0286CE1368DC59E</string>
 			<key>IDESourceControlWCCName</key>
 			<string>JewishClock2</string>
 		</dict>

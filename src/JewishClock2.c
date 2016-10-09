@@ -63,6 +63,7 @@ static int sunLabelY;
 static int sunHourY;
 
 // Parameters
+static int kSHOW_ALERTS = 1; // 0 to disable alerts
 static int MINCHA_ALERT = 18;
 static int kBackgroundColor = GColorBlack;
 static int kTextColor = GColorWhite;
@@ -413,6 +414,9 @@ void updateZmanim() {
 
 // **** Check if alert needed and show/vibrate if needed
 void checkAlerts() {
+    if (!kSHOW_ALERTS) {
+        return; // alerts are disabled
+    }
     static int mustRemove = 0;
     int mustAlert = 0;
     
@@ -529,6 +533,10 @@ void updateMoonAndSun() {
 // Update Hebrew Date
 void updateHebrewDate() {
     int julianDay = hdate_gdate_to_jd(currentPblTime->tm_mday, currentPblTime->tm_mon + 1, currentPblTime->tm_year + 1900);
+    // check if after sunset, add 1 day
+    if(sunsetTime && (currentTime > sunsetTime)) {
+        julianDay++;
+    }
     // Convert julian day to hebrew date
     int hDay, hMonth, hYear, hDayTishrey, hNextTishrey;
     hdate_jd_to_hdate(julianDay, &hDay, &hMonth, &hYear, &hDayTishrey, &hNextTishrey);
@@ -550,9 +558,8 @@ void updateDate() {
 
 // Called once per day at midnight, and once at startup
 void doEveryDay() {
-    updateDate();
-    updateHebrewDate();
     updateMoonAndSun();
+    updateDate();
 }
 
 // Called once per hour when minute becomes 0, and once at startup
@@ -563,6 +570,7 @@ void doEveryHour() {
 void doEveryMinute() {
     updateTime();
     updateZmanim();
+    updateHebrewDate();
     // Must update Sun Graph rendering
     layer_mark_dirty(sunGraphLayer);
     checkAlerts();
@@ -780,7 +788,7 @@ static void init(void) {
     });
     
     // Init time format string
-    timeFormat = clock_is_24h_style()?"%R":"%I:%M";
+    timeFormat = clock_is_24h_style()?"%R":"%l:%M";
     
     // Init time struct
     time_t unixTime;
@@ -806,7 +814,7 @@ static void init(void) {
     
     
     text_layer_set_background_color(layer_batt_text, GColorClear);
-    text_layer_set_font(layer_batt_text, fonts_get_system_font(FONT_KEY_FONT_FALLBACK));
+    text_layer_set_font(layer_batt_text, fonts_get_system_font(FONT_KEY_GOTHIC_14));
     text_layer_set_text_alignment(layer_batt_text, GTextAlignmentCenter);
     
     bitmap_layer_set_bitmap(layer_batt_img, img_battery_full);
